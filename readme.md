@@ -13,7 +13,7 @@ The CameraHub project does not use a database and instead relies on just using f
 The folder structure works as follows:
 
 ## Album location
-Every album is stored as a folder in the `album`-folder. The name of the folder is the name of the album.
+Every album is stored as a folder in the `albums`-folder. The name of the folder is the name of the album.
 ## Album contents
 Each album-folder **must** contain:
 - A folder named `images` which contains the images of the album and **nothing more**.
@@ -23,11 +23,11 @@ In addition, each album-folder **may** contain:
 - Other files and folders not used by CameraHub, such as folders containing raw images.
 
 # Endpoints
-Using the endpoints in the API it is possible to get images and control the camera. The following endpoints are provided:
+Using the endpoints of the API it is possible to create albums, get the images of certain albums and control the camera. The following endpoints are provided:
 
 ## GET `"/"` -> List available albums
 List all available albums in CameraHub and return the names as a json-response.
-## POST `"/"` -> List available albums
+## POST `"/"` -> Add new album
 Create a new album named `<param:album_name>` if it does not already exists. If `<param:description>` is given, update the description of `<param:album_name>` with the contents of `<param:description>`. Redirects to the album info endpoint for `<param:album_name>` when done.
 ## GET `"/<album_name>"` -> Get information for album
 Returns a list of the image links for all images in `<album_name>`. If an album with `<album_name>` does not exist, an error response is returned instead.
