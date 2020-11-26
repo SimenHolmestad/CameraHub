@@ -24,17 +24,17 @@ def create_app(album_dir_name):
                 return {"error": "Missing required parameter <album_name>"}
 
             album_name = request.args.get("album_name")
-            album_directory_path = os.path.join(album_dir_name, album_name)
+            path_to_album = os.path.join(album_dir_name, album_name)
 
             # Create album if it does noe exist
-            if not os.path.exists(album_directory_path):
-                os.makedirs(album_directory_path)
-                album_images_path = os.path.join(album_directory_path, "images")
+            if not os.path.exists(path_to_album):
+                os.makedirs(path_to_album)
+                album_images_path = os.path.join(path_to_album, "images")
                 os.makedirs(album_images_path)
 
             # Update album description if <param:description> is given.
             if "description" in request.args:
-                description_file_path = os.path.join(album_directory_path, "description.txt")
+                description_file_path = os.path.join(path_to_album, "description.txt")
                 f = open(description_file_path, "w")
                 f.write(request.args.get("description"))
                 f.close()
@@ -64,7 +64,7 @@ def create_app(album_dir_name):
             album_name,
             "description.txt")
         if os.path.exists(album_description_path):
-            f = open(album_description_path)
+            f = open(album_description_path, "r")
             description = f.read()
             f.close()
 
