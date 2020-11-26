@@ -5,7 +5,7 @@ CameraHub is meant to be an API for controlling a camera (DSLR or Raspberry PI c
 To run the application in development mode
 ```
 export FLASK_ENV=development
-flask run
+python3 app.py
 ```
 # Folder structure
 The CameraHub project does not use a database and instead relies on just using folders. This is done so that it is not necessary keep a database in sync with the folder structure, thus making it easier to move image folders back and forth (which is necessary because of limited space on the Raspberry PI). While this is not good performance-wise, CameraHub is not meant to scale anyway, so it is completely fine.

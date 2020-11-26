@@ -80,3 +80,7 @@ def album_info(album_name):
         "image_urls": image_urls,
         "description": description,
     }
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
