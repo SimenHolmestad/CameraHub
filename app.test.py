@@ -50,18 +50,33 @@ class BasicTestCase(unittest.TestCase):
             "description": "A very nice album indeed"
         }
 
+        # Make sure there are no albums
         album_folders = os.listdir(self.album_dir_name)
         self.assertEqual(len(album_folders), 0)
 
+        # This request should create the album specified with PARAMS
         test_client.post('/', query_string=PARAMS, content_type='application/json')
 
+        # Check that the album exists
         album_folders = os.listdir(self.album_dir_name)
         self.assertEqual(len(album_folders), 1)
         self.assertIn("album1", os.listdir(self.album_dir_name))
 
+        # Check that the album contains the right files and folders
         album_content = os.listdir(os.path.join(self.album_dir_name, "album1"))
         self.assertIn("description.txt", album_content)
         self.assertIn("images", album_content)
+
+        # Check that the description is correct
+        description_file_path = os.path.join(
+            self.album_dir_name,
+            "album1",
+            "description.txt"
+        )
+        f = open(description_file_path, "r")
+        content = f.read()
+        f.close()
+        self.assertEqual(content, "A very nice album indeed")
 
 
 if __name__ == '__main__':
