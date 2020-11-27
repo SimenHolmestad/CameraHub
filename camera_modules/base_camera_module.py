@@ -6,9 +6,13 @@ import re
 class BaseCameraModule(ABC):
     """Abstract class containing common image capture related code"""
 
-    def __init__(self, album_dir_name, image_name_prefix="image"):
+    def __init__(self,
+                 album_dir_name,
+                 file_extension,
+                 image_name_prefix="image"):
         assert os.path.exists(album_dir_name)
         self.album_dir_name = album_dir_name
+        self.file_extension = file_extension
         self.image_name_prefix = image_name_prefix
 
     @abstractmethod
@@ -44,7 +48,7 @@ class BaseCameraModule(ABC):
             self.album_dir_name,
             album_name,
             "images",
-            next_image_name
+            next_image_name + self.file_extension
         )
         try:
             self.capture_image(next_image_path)

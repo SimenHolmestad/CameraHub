@@ -1,4 +1,4 @@
-from base_camera_module import BaseCameraModule
+from .base_camera_module import BaseCameraModule
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,8 +17,7 @@ class DummyCameraModule(BaseCameraModule):
                  number_of_circles=80,
                  min_circle_radius=30,
                  max_circle_radius=80):
-        super().__init__(album_dir_name)
-        self.file_extension = file_extension
+        super().__init__(album_dir_name, file_extension)
         self.width = width
         self.height = height
         self.number_of_circles = number_of_circles
@@ -51,7 +50,7 @@ class DummyCameraModule(BaseCameraModule):
                     image[y, x, 2] = b
         return image
 
-    def capture_image(self, image_path_without_extension):
+    def capture_image(self, image_path):
         """Creates an image and saves it in "image_path_without_extension"."""
         # Create white image
         image = np.full((self.height, self.width, 3), 255, dtype=np.uint8)
@@ -61,7 +60,7 @@ class DummyCameraModule(BaseCameraModule):
             image = self.add_random_circle_to_image(image)
 
         # Save image
-        plt.imsave(image_path_without_extension + self.file_extension, image)
+        plt.imsave(image_path, image)
 
 
 if __name__ == '__main__':
