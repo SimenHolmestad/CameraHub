@@ -89,6 +89,9 @@ def create_app(album_dir_name):
 
 
 if __name__ == '__main__':
-    album_dir_name = "albums"
-    app = create_app(album_dir_name)
+    ALBUM_DIR_NAME = "albums"
+    if not os.path.exists(ALBUM_DIR_NAME):
+        os.makedirs(ALBUM_DIR_NAME)
+
+    app = create_app(ALBUM_DIR_NAME)
     app.run(debug=True)
