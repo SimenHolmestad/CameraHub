@@ -56,13 +56,16 @@ def create_app(album_dir_name):
             image_names = os.listdir(
                 os.path.join(album_dir_name, album_name, "images"))
         except FileNotFoundError:
-            return {"error": "no such album exists"}
+            error_message = "No album with the name \"{}\" exists".format(album_name)
+            return {"error": error_message}
 
         description = ""
         album_description_path = os.path.join(
             album_dir_name,
             album_name,
-            "description.txt")
+            "description.txt"
+        )
+
         if os.path.exists(album_description_path):
             f = open(album_description_path, "r")
             description = f.read()
@@ -73,7 +76,8 @@ def create_app(album_dir_name):
             lambda image: url_for(
                 "static",
                 filename="{}/images/{}".format(album_name, image)
-            ), image_names))
+            ), image_names
+        ))
 
         return {
             "album_name": album_name,
