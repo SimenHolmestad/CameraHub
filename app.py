@@ -1,8 +1,9 @@
 import os
 from flask import Flask, request, url_for, redirect
+from camera_modules.dummy_camera_module import DummyCameraModule
 
 
-def create_app(album_dir_name):
+def create_app(album_dir_name, camera_module):
     app = Flask(__name__, static_folder=album_dir_name)
 
     @app.route("/", methods=["GET", "POST"])
@@ -45,11 +46,18 @@ def create_app(album_dir_name):
         albums.sort()
         return {"available_albums": albums}
 
-    @app.route("/<album_name>")
+    @app.route("/<album_name>", methods=["GET", "POST"])
     def album_info(album_name):
-        """Returns a list of the image links for all images in <album_name>.
-        If an album with <album_name> does not exist, an error response is
-        returned instead.
+        """An endpoint for listing images in an album or capture a new one
+
+        On GET: Returns a list of the image links for all images in
+        <album_name>. If an album with <album_name> does not exist, an
+        error response is returned instead.
+
+        On POST: Try to capture an image with the camera module and
+        add the image to <album_name>. The response is the dictionary
+        returned from the try_capture_image function of the camera
+        module.
 
         """
         try:
@@ -58,6 +66,9 @@ def create_app(album_dir_name):
         except FileNotFoundError:
             error_message = "No album with the name \"{}\" exists".format(album_name)
             return {"error": error_message}
+
+        if request.method == "POST":
+            return camera_module.try_capture_image(album_name)
 
         description = ""
         album_description_path = os.path.join(
@@ -92,6 +103,7 @@ if __name__ == '__main__':
     ALBUM_DIR_NAME = "albums"
     if not os.path.exists(ALBUM_DIR_NAME):
         os.makedirs(ALBUM_DIR_NAME)
+    camera_module = DummyCameraModule(ALBUM_DIR_NAME)
 
-    app = create_app(ALBUM_DIR_NAME)
+    app = create_app(ALBUM_DIR_NAME, camera_module)
     app.run(debug=True)
