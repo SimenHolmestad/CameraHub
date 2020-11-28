@@ -65,10 +65,10 @@ class BaseCameraModule(ABC):
         """Find the image number of the next image.
 
         The function reads the content of the file
-        ".next_image_number.txt". If this file does not exist, it
-        tries to figure out next image number by reading the file
-        names of the images present in the images folder of the
-        specified album.
+        ".next_image_number.txt". If this file does not exist (or the
+        an image file is in risk of getting overwritten), it tries to
+        figure out next image number by reading the file names of the
+        images present in the images folder of the specified album.
 
         """
         path_to_album = os.path.join(self.album_dir_name, album_name)
@@ -83,10 +83,11 @@ class BaseCameraModule(ABC):
             next_image_number = int(f.read())
             f.close()
 
-            # Make sure to not overwrite an image if .next_image_number is wrong
+            # Make sure to not overwrite an image if .next_image_number.txt is wrong
             possible_next_image_filepath = os.path.join(
                 path_to_album_images,
-                self.image_name_prefix + str(next_image_number).rjust(4, "0"))
+                self.image_name_prefix + str(next_image_number).rjust(4, "0")
+            )
             if not (os.path.exists(possible_next_image_filepath + ".png")
                     or os.path.exists(possible_next_image_filepath + ".jpg")):
                 return next_image_number
