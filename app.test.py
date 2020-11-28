@@ -2,15 +2,18 @@ import unittest
 from app import create_app
 import tempfile
 import os
+from camera_modules.dummy_camera_module import DummyCameraModule
 
 
-class BasicTestCase(unittest.TestCase):
+class AppTestCase(unittest.TestCase):
     def setUp(self):
         # Create a new album directory so that the "albums" directory
         # is left untouched while testing.
         self.album_dir = tempfile.TemporaryDirectory(dir=".")
         self.album_dir_name = self.album_dir.name.split("./")[1]
-        self.app = create_app(self.album_dir_name)
+
+        self.camera_module = DummyCameraModule(self.album_dir_name)
+        self.app = create_app(self.album_dir_name, self.camera_module)
 
     def tearDown(self):
         self.album_dir.cleanup()
