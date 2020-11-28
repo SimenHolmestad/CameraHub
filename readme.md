@@ -1,8 +1,19 @@
 # CameraHub
-CameraHub is meant to be an API for controlling a camera (DSLR or Raspberry PI camera module) through a web interface. This is the current backend for the project and is meant to run on a Raspberry PI.
+CameraHub is meant to be an API for controlling a camera (DSLR or Raspberry PI camera module) through a web interface. This repo contains the current Flask backend for the project and is meant to run on a Raspberry PI.
 
+# Motivation
+CameraHub does much of the same as [this project](https://github.com/SimenHolmestad/Fotobox) (made some time ago), but aims to:
+
+- Be more modular
+- Be easier to extend
+- Provide more functionality
+- Be easier to setup and maintain
+- Be more lightweight
+- Provide a better user experience
+
+The backend is developed in Flask as using Django probably would have been overkill when there is no database and no authentication.
 # Running the application
-To run the application in development mode
+To run the application in development mode, do:
 ```
 export FLASK_ENV=development
 python3 app.py
@@ -13,27 +24,29 @@ The CameraHub project does not use a database and instead relies on just using f
 The folder structure works as follows:
 
 ## Album location
-Every album is stored as a folder in the `albums`-folder. The name of the folder is the name of the album.
-## Album contents
-Each album-folder **must** contain:
+The `albums`-folder is created when the app starts for the first time and is used to store all album-information. Every album is stored as a folder in the `albums`-folder, and the name of the folder is the name of the album. Rename an album-folder and the album is remained. Remove an album folder from the `albums`-folder, and the system will no longer know that it has existed.
+## Album folder contents
+Each album folder **must** contain:
 - A folder named `images` which contains the images of the album and **nothing more**.
 
-In addition, each album-folder **may** contain:
+Each album folder **sometimes** contain:
+- `.next_image_number.txt`: Is used by the camera modules to easier know what is to be the number of the next image to capture.
+
+In addition, each album folder **may** contain:
 - A file named `description.txt` with a description of the album
 - Other files and folders not used by CameraHub, such as folders containing raw images.
 
 # Endpoints
-Using the endpoints of the API it is possible to create albums, get the images of certain albums and control the camera. The following endpoints are provided:
+Using the endpoints of the API it is possible to create albums, get the images of albums and capture new images to an album. The following endpoints are provided:
 
 ## GET `"/"` -> List available albums
 List all available albums in CameraHub and return the names as a json-response.
 ## POST `"/"` -> Add new album
-Create a new album named `<param:album_name>` if it does not already exists. If `<param:description>` is given, update the description of `<param:album_name>` with the contents of `<param:description>`. Redirects to the album info endpoint for `<param:album_name>` when done.
+Create a new album named `<param:album_name>` if it does not already exist. If `<param:description>` is given, update the description of `<param:album_name>` with the contents of `<param:description>`. Redirects to the album info endpoint for `<param:album_name>` when done.
 ## GET `"/<album_name>"` -> Get information for album
 Returns a list of the image links for all images in `<album_name>`. If an album with `<album_name>` does not exist, an error response is returned instead.
-
-# Future endpoints
-## POST `"/<album_name>/capture_image"` -> Capture new image to album
+## POST `"/<album_name>"` -> Capture new image to album
+Try to capture an image with the camera module and add the image to `<album_name>`. The response will contain the image link for the image which has been captured. If an error has occured, an error message is returned insted.
 
 # Useful links for further development
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
