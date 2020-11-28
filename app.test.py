@@ -302,6 +302,20 @@ class AppTestCase(unittest.TestCase):
 
         self.assertEqual(next_image_number, 5)
 
+    def test_capture_image_endpoint(self):
+        self.create_temp_album("album1")
+        test_client = self.app.test_client()
+
+        response = test_client.post(
+            "/album1",
+            content_type='application/json',
+            follow_redirects=True)
+        content = response.json
+
+        self.assertIn("success", content)
+        self.assertIn("image_file_path", content)
+        self.assertTrue(os.path.exists(content["image_file_path"]))
+
 
 if __name__ == '__main__':
     unittest.main()
