@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, url_for, redirect
+from flask import Flask, request, url_for, redirect, jsonify
 from camera_modules.dummy_camera_module import DummyCameraModule
 
 
@@ -22,7 +22,7 @@ def create_app(album_dir_name, camera_module):
         """
         if request.method == "POST":
             if "album_name" not in request.args:
-                return {"error": "Missing required parameter <album_name>"}
+                return jsonify({"error": "Missing required parameter <album_name>"})
 
             album_name = request.args.get("album_name")
             path_to_album = os.path.join(album_dir_name, album_name)
@@ -44,7 +44,7 @@ def create_app(album_dir_name, camera_module):
 
         albums = os.listdir(album_dir_name)
         albums.sort()
-        return {"available_albums": albums}
+        return jsonify({"available_albums": albums})
 
     @app.route("/<album_name>", methods=["GET", "POST"])
     def album_info(album_name):
@@ -65,10 +65,10 @@ def create_app(album_dir_name, camera_module):
                 os.path.join(album_dir_name, album_name, "images"))
         except FileNotFoundError:
             error_message = "No album with the name \"{}\" exists".format(album_name)
-            return {"error": error_message}
+            return jsonify({"error": error_message})
 
         if request.method == "POST":
-            return camera_module.try_capture_image(album_name)
+            return jsonify(camera_module.try_capture_image(album_name))
 
         description = ""
         album_description_path = os.path.join(
@@ -90,11 +90,11 @@ def create_app(album_dir_name, camera_module):
             ), image_names
         ))
 
-        return {
+        return jsonify({
             "album_name": album_name,
             "image_urls": image_urls,
             "description": description,
-        }
+        })
 
     return app
 
