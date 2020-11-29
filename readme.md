@@ -12,9 +12,12 @@ CameraHub does much of the same as [this project](https://github.com/SimenHolmes
 - Provide a better user experience
 
 The backend is developed in Flask as using Django probably would have been overkill when there is no database and no authentication.
-# Running the application
-To run the application in development mode, do:
+# Running the application for development
+To run the application for development, do:
 ```
+git clone https://github.com/SimenHolmestad/CameraHub.git
+cd CameraHub
+pip install -r requirements.txt
 export FLASK_ENV=development
 python3 app.py
 ```
