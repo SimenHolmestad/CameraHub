@@ -1,5 +1,4 @@
 from .base_camera_module import BaseCameraModule
-import os
 import matplotlib.pyplot as plt
 import numpy as np
 from random import randint
@@ -61,19 +60,3 @@ class DummyCameraModule(BaseCameraModule):
 
         # Save image
         plt.imsave(image_path, image)
-
-
-if __name__ == '__main__':
-    ALBUM_DIR_NAME = "test_albums"
-    ALBUM_NAME = "dummy_module_images"
-    if not os.path.exists(ALBUM_DIR_NAME):
-        os.makedirs(ALBUM_DIR_NAME)
-
-    path_to_album = os.path.join(ALBUM_DIR_NAME, ALBUM_NAME)
-
-    if not os.path.exists(path_to_album):
-        os.makedirs(path_to_album)
-        os.makedirs(os.path.join(path_to_album, "images"))
-
-    camera_module = DummyCameraModule(ALBUM_DIR_NAME)
-    camera_module.try_capture_image(ALBUM_NAME)

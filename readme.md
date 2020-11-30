@@ -54,7 +54,14 @@ Try to capture an image with the camera module and add the image to `<album_name
 # Camera modules
 The camera module is the part of the system which handles image capturing. If CameraHub is to function with another type of camera, a new camera module has to be made. Most of the basic camera module functionality is implemented in `camera_modules/base_camera_module.py`, so creating a new one should not be that difficult – just create a class which inherits from `BaseCameraModule` and implements the `capture_image`-method.
 
-It is possible to test a camera module by running its python file. This will create a folder named `test_albums` which will contain the image files created.
+It is possible to test a camera module by running
+```
+python3 test_camera_module.py <name_of_module>
+```
+Where `<name_of_module` can be one of the following:
+- `dummmy_module`
+- `rpicam_module`
+This will create a folder named `test_albums` which will contain the image files created.
 
 The current camera modules are:
 ## The dummy camera module
