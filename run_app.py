@@ -31,7 +31,10 @@ def open_webpage_in_device_browser(url):
     if(os.path.exists("/usr/bin/chromium-browser")):
         os.environ["DISPLAY"] = ":0"
         cmd = ["sleep", "2", "&&" "/usr/bin/chromium-browser", "--start-fullscreen", url]
-        return subprocess.Popen(" ".join(cmd), shell=True)
+
+        # Return a chromium subprocessed with suppressed output
+        with open(os.devnull, 'w') as fp:
+            return subprocess.Popen(" ".join(cmd), shell=True, stdout=fp, stderr=fp)
     elif platform.system() == "Darwin":
         cmd = "open " + url
         subprocess.run(cmd, shell=True)
