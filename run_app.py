@@ -41,7 +41,7 @@ def open_webpage_in_device_browser(url):
 
 def generate_qr_code(file_path, content):
     """Generate a QR-code at <file_path> with the contents of
-    <contents>.
+    <content>.
     """
     qr = qrcode.QRCode(
         version=1,
