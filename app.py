@@ -1,7 +1,5 @@
 import os
-import socket
 from flask import Flask, request, url_for, redirect, jsonify
-from camera_modules.dummy_camera_module import DummyCameraModule
 
 
 def create_app(album_dir_name, camera_module):
@@ -98,18 +96,3 @@ def create_app(album_dir_name, camera_module):
         })
 
     return app
-
-
-if __name__ == '__main__':
-    ALBUM_DIR_NAME = "albums"
-    if not os.path.exists(ALBUM_DIR_NAME):
-        os.makedirs(ALBUM_DIR_NAME)
-    camera_module = DummyCameraModule(ALBUM_DIR_NAME)
-
-    # Find IP address
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    host_ip = s.getsockname()[0]
-
-    app = create_app(ALBUM_DIR_NAME, camera_module)
-    app.run(debug=True, host=host_ip)

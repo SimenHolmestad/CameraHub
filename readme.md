@@ -19,7 +19,7 @@ git clone https://github.com/SimenHolmestad/CameraHub.git
 cd CameraHub
 pip install -r requirements.txt
 export FLASK_ENV=development
-python3 app.py
+python3 run_app.py debug
 ```
 # Folder structure
 The CameraHub project does not use a database and instead relies on just using folders. This is done so that it is not necessary keep a database in sync with the folder structure, thus making it easier to move image folders back and forth (which is necessary because of limited storage space on the Raspberry PI). While this is not good performance-wise, CameraHub is not meant to scale anyway, so it is completely fine.
