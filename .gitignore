@@ -16,3 +16,5 @@ build/
 albums/
 
 test_albums/
+
+network_details.json

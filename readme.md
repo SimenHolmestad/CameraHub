@@ -92,6 +92,21 @@ Currently, the module uses the `raspistill` command. For more information about 
 # Future camera modules
 ## The DSLR camera module
 
+# Creating a QR code for wifi on app start
+If a QR code for connecting to wifi is desired, such a QR code will be generated on app start if the file `network_details.json` is present in the root directory of the project. The file should be on the following format:
+
+```
+{
+  "wifi_name": "my_wifi_SSID",
+  "wifi_protocol": "WPA/WPA2",
+  "wifi_password": "my_super_secret_password"
+}
+```
+
+The QR code will be saved with the file path `albums/.qr-codes/wifi_qr_code.png`.
+
+Doing this might be a security risk, but storing your wifi password in a QR code is probably a security risk anyway.
+
 # Useful links for further development
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
 - https://flask.palletsprojects.com/en/1.1.x/tutorial/#tutorial

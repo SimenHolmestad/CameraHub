@@ -4,6 +4,7 @@ import subprocess
 import platform
 import argparse
 import qrcode
+import json
 from app import create_app
 from camera_modules.dummy_camera_module import DummyCameraModule
 from camera_modules.rpicam_module import RPICameraModule
@@ -63,11 +64,28 @@ def generate_and_fill_qr_code_album(album_dir_name, start_page_url):
     if not os.path.exists(qr_code_folder_path):
         os.makedirs(qr_code_folder_path)
 
+    # Create QR code for start page
     start_page_qr_code_file_path = os.path.join(
         qr_code_folder_path,
         "start_page_qr_code.png"
     )
     generate_qr_code(start_page_qr_code_file_path, start_page_url)
+
+    # Create QR code for joining wifi network if the file network_details.json exists
+    if os.path.exists("network_details.json"):
+        f = open("network_details.json", "r")
+        content = json.loads(f.read())
+        f.close()
+        wifi_name = content["wifi_name"]
+        wifi_protocol = content["wifi_protocol"]
+        wifi_password = content["wifi_password"]
+
+        wifi_qr_code_content = F"WIFI:S:{wifi_name};T:{wifi_protocol};P:{wifi_password};;"
+        wifi_qr_code_file_path = os.path.join(
+            qr_code_folder_path,
+            "wifi_qr_code.png"
+        )
+        generate_qr_code(wifi_qr_code_file_path, wifi_qr_code_content)
 
 
 if __name__ == '__main__':
@@ -90,12 +108,20 @@ if __name__ == '__main__':
     start_page_url = "http://{}:5000/".format(host_ip)
     generate_and_fill_qr_code_album(ALBUM_DIR_NAME, start_page_url)
 
-    # Create the QR code URL and open in browser if not in debug mode
-    qr_code_url = "http://" + host_ip + ":5000/albums/.qr_codes/start_page_qr_code.png"
-    print("qr-code url:", qr_code_url)
+    # Print QR code URLs to console
+    start_page_qr_code_url = "http://" + host_ip + ":5000/albums/.qr_codes/start_page_qr_code.png"
+    print("Url for start page QR code:", start_page_qr_code_url)
+    wifi_qr_code_url = "http://" + host_ip + ":5000/albums/.qr_codes/wifi_qr_code.png"
+    print("Url for wifi QR code (if it exists):", wifi_qr_code_url)
+
+    # NOTE: start_page_qr_code_url should be changed to an actual
+    # webpage displaying both QR codes when a front-end is developed
+    # in the future.
+
+    # Open the start page QR code URL in browser if not in debug mode
     browser_process = None
     if not args.debug:
-        browser_process = open_webpage_in_device_browser(qr_code_url)
+        browser_process = open_webpage_in_device_browser(start_page_qr_code_url)
 
     # Initialize camera module based on input args
     camera_module = CAMERA_MODULE_OPTIONS[args.camera_module](ALBUM_DIR_NAME)
