@@ -41,7 +41,8 @@ def create_app(album_dir_name, camera_module):
 
             return redirect(url_for("album_info", album_name=album_name))
 
-        albums = os.listdir(album_dir_name)
+        # All folders not starting with a dot is considered albums
+        albums = [a for a in os.listdir(album_dir_name) if not a.startswith(".")]
         albums.sort()
         return jsonify({"available_albums": albums})
 
