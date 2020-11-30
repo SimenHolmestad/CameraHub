@@ -1,10 +1,14 @@
 import os
-import sys
 import socket
 import subprocess
 import platform
+import argparse
 from app import create_app
 from camera_modules.dummy_camera_module import DummyCameraModule
+from camera_modules.rpicam_module import RPICameraModule
+
+CAMERA_MODULE_OPTIONS = {"dummy_module": DummyCameraModule,
+                         "rpicam_module": RPICameraModule}
 
 
 def find_ip_address_for_device():
@@ -31,9 +35,14 @@ def open_start_page_in_browser(host_ip):
 
 if __name__ == '__main__':
     """Run the flask application."""
-    use_debug = False
-    if len(sys.argv) > 1 and sys.argv[1] == "debug":
-        use_debug = True
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true")
+    parser.add_argument("-c", "--camera_module",
+                        help="The camera module to use. Defaults to \"dummy module\"",
+                        choices=CAMERA_MODULE_OPTIONS.keys(),
+                        default="dummy_module")
+
+    args = parser.parse_args()
 
     ALBUM_DIR_NAME = "albums"
 
@@ -41,17 +50,17 @@ if __name__ == '__main__':
     if not os.path.exists(ALBUM_DIR_NAME):
         os.makedirs(ALBUM_DIR_NAME)
 
-    # Initialize camera module
-    camera_module = DummyCameraModule(ALBUM_DIR_NAME)
+    # Initialize camera module based on input args
+    camera_module = CAMERA_MODULE_OPTIONS[args.camera_module](ALBUM_DIR_NAME)
 
     host_ip = find_ip_address_for_device()
 
     browser_process = None
-    if not use_debug:
+    if not args.debug:
         browser_process = open_start_page_in_browser(host_ip)
 
     app = create_app(ALBUM_DIR_NAME, camera_module)
-    app.run(debug=use_debug, host=host_ip)
+    app.run(debug=args.debug, host=host_ip)
 
     # Delete browser process if it was created
     if browser_process:
