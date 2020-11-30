@@ -21,9 +21,9 @@ pip install -r requirements.txt
 export FLASK_ENV=development
 python3 run_app.py -d
 ```
-This will use the [Dummy camera module](the-dummy-camera-module), so that no camera connection is needed.
-# Running the application on a Raspberry PI
-Running the program on the Raspberry PI can be done in many ways. One of the ways is described below
+This will use the [dummy camera module](#the-dummy-camera-module), so that no camera connection is needed.
+# Setting up the application on a Raspberry PI
+Running the application on the Raspberry PI can be done in many ways. One of the ways is described below:
 ## Installing the OS
 It is recommended to use the operating system "Raspberry Pi OS with desktop" which can be found [here](https://www.raspberrypi.org/software/operating-systems/). This can be written to an sd-card by using the Raspberry PI Imager or the [balena etcher](https://www.balena.io/etcher/).
 ## Setting up the Raspberry PI
@@ -77,6 +77,7 @@ python3 test_camera_module.py <name_of_module>
 Where `<name_of_module` can be one of the following:
 - `dummmy_module`
 - `rpicam_module`
+
 This will create a folder named `test_albums` which will contain the image files created.
 
 The current camera modules are:
@@ -87,7 +88,7 @@ The module creates white images with randomly colored and positioned circles. Ho
 ## The "Raspberry PI camera module" camera module
 The "Raspberry PI camera module" camera module (`camera_modules/rpicam_module.py`) makes it possible to use CameraHub together with the [Raspberry PI camera module](https://www.raspberrypi.org/documentation/hardware/camera/).
 
-Currently, the module uses the "raspistill" command. For more information about getting started with the RPI camera module, see [the official tutorial](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera).
+Currently, the module uses the `raspistill` command. For more information about getting started with the RPI camera module, see [the official tutorial](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera).
 # Future camera modules
 ## The DSLR camera module
 
