@@ -21,6 +21,22 @@ pip install -r requirements.txt
 export FLASK_ENV=development
 python3 run_app.py -d
 ```
+This will use the [Dummy camera module](the-dummy-camera-module), so that no camera connection is needed.
+# Running the application on a Raspberry PI
+Running the program on the Raspberry PI can be done in many ways. One of the ways is described below
+## Installing the OS
+It is recommended to use the operating system "Raspberry Pi OS with desktop" which can be found [here](https://www.raspberrypi.org/software/operating-systems/). This can be written to an sd-card by using the Raspberry PI Imager or the [balena etcher](https://www.balena.io/etcher/).
+## Setting up the Raspberry PI
+When having a keyboard, mouse and monitor, this should not be a problem. If not, check out [this page about connecting to the RPI in headless mode](https://www.raspberrypi.org/documentation/remote-access/README.md) and possibly [this page about connecting the RPI to wifi in headless mode](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md).
+## Running the appliction on Raspberry PI
+To run the application on the Raspberry pi, do:
+```
+git clone https://github.com/SimenHolmestad/CameraHub.git
+cd CameraHub
+pip install -r requirements.txt
+python3 run_app.py --camera_module <name_of_module>
+```
+Where `<name_of_module>` is one of the modules in [the camera modules section](#camera-modules).
 # Folder structure
 The CameraHub project does not use a database and instead relies on just using folders. This is done so that it is not necessary keep a database in sync with the folder structure, thus making it easier to move image folders back and forth (which is necessary because of limited storage space on the Raspberry PI). While this is not good performance-wise, CameraHub is not meant to scale anyway, so it is completely fine.
 
@@ -68,9 +84,12 @@ The current camera modules are:
 The dummy camera module (`camera_modules/dummy_camera_module.py`) is created for testing purposes, so that it is not necessary to have a camera connected when developing. It is also used when running unit tests.
 
 The module creates white images with randomly colored and positioned circles. How this circle generation is done can be changed by altering the class parameters.
+## The "Raspberry PI camera module" camera module
+The "Raspberry PI camera module" camera module (`camera_modules/rpicam_module.py`) makes it possible to use CameraHub together with the [Raspberry PI camera module](https://www.raspberrypi.org/documentation/hardware/camera/).
+
+Currently, the module uses the "raspistill" command. For more information about getting started with the RPI camera module, see [the official tutorial](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera).
 # Future camera modules
 ## The DSLR camera module
-## The "Raspberry PI camera module" camera module
 
 # Useful links for further development
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
