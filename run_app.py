@@ -62,7 +62,7 @@ def generate_qr_code(file_path, content):
     img.save(file_path)
 
 
-def generate_and_fill_qr_code_album(static_folder_name, start_page_url):
+def generate_and_save_qr_codes(static_folder_name, start_page_url):
     """Creates an album containing QR codes related to the application."""
     # Create qr-code album if it does not exist.
     QR_CODE_FOLDER_NAME = "qr_codes"
@@ -94,6 +94,47 @@ def generate_and_fill_qr_code_album(static_folder_name, start_page_url):
         generate_qr_code(wifi_qr_code_file_path, wifi_qr_code_content)
 
 
+def run_application(camera_module):
+    host_ip = find_ip_address_for_device()
+
+    # Print QR code URLs to console
+    start_page_qr_code_url = "http://" + host_ip + ":5000/static/qr_codes/start_page_qr_code.png"
+    print("Url for start page QR code:", start_page_qr_code_url)
+    wifi_qr_code_url = "http://" + host_ip + ":5000/static/qr_codes/wifi_qr_code.png"
+    print("Url for wifi QR code (if it exists):", wifi_qr_code_url)
+
+    # NOTE: start_page_qr_code_url should be changed to an actual
+    # webpage displaying both QR codes when a front-end is developed
+    # in the future.
+
+    # Create QR codes
+    start_page_url = "http://{}:5000/".format(host_ip)
+    generate_and_save_qr_codes(STATIC_FOLDER_PATH, start_page_url)
+
+    # Open qr-code page in browser
+    browser_process = open_webpage_in_device_browser(start_page_qr_code_url)
+
+    # Run app
+    app = create_app(STATIC_FOLDER_NAME, ALBUM_DIR_PATH, camera_module)
+    app.run(debug=args.debug, host=host_ip)
+
+    # Delete browser process if it was created
+    if browser_process:
+        browser_process.terminate()
+
+
+def run_backend_in_debug_mode(camera_module):
+    print("Running the backend in debug mode. Start the frontend in a separate terminal window")
+
+    # Create QR codes
+    start_page_url = "http://localhost:5000/"
+    generate_and_save_qr_codes(STATIC_FOLDER_PATH, start_page_url)
+
+    # Run app
+    app = create_app(STATIC_FOLDER_NAME, ALBUM_DIR_PATH, camera_module)
+    app.run(debug=True, host="localhost")
+
+
 if __name__ == '__main__':
     """Run the flask application."""
     parser = argparse.ArgumentParser()
@@ -108,37 +149,10 @@ if __name__ == '__main__':
     if not os.path.exists(ALBUM_DIR_PATH):
         os.makedirs(ALBUM_DIR_PATH)
 
-    if args.debug:
-        host_ip = "localhost"
-    else:
-        host_ip = find_ip_address_for_device()
-
-    # Create QR codes
-    start_page_url = "http://{}:5000/".format(host_ip)
-    generate_and_fill_qr_code_album(STATIC_FOLDER_PATH, start_page_url)
-
-    # Print QR code URLs to console
-    start_page_qr_code_url = "http://" + host_ip + ":5000/static/qr_codes/start_page_qr_code.png"
-    print("Url for start page QR code:", start_page_qr_code_url)
-    wifi_qr_code_url = "http://" + host_ip + ":5000/static/qr_codes/wifi_qr_code.png"
-    print("Url for wifi QR code (if it exists):", wifi_qr_code_url)
-
-    # NOTE: start_page_qr_code_url should be changed to an actual
-    # webpage displaying both QR codes when a front-end is developed
-    # in the future.
-
-    # Open the start page QR code URL in browser if not in debug mode
-    browser_process = None
-    if not args.debug:
-        browser_process = open_webpage_in_device_browser(start_page_qr_code_url)
-
     # Initialize camera module based on input args
     camera_module = CAMERA_MODULE_OPTIONS[args.camera_module](ALBUM_DIR_PATH)
 
-    # Run app
-    app = create_app(STATIC_FOLDER_NAME, ALBUM_DIR_PATH, camera_module)
-    app.run(debug=args.debug, host=host_ip)
-
-    # Delete browser process if it was created
-    if browser_process:
-        browser_process.terminate()
+    if args.debug:
+        run_backend_in_debug_mode(camera_module)
+    else:
+        run_application(camera_module)
