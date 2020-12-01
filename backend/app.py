@@ -2,9 +2,8 @@ import os
 from flask import Flask, request, url_for, redirect, jsonify
 
 
-def create_app(static_folder_name, camera_module):
+def create_app(static_folder_name, album_dir_path, camera_module):
     app = Flask(__name__, static_folder=static_folder_name)
-    album_dir_path = os.path.join(static_folder_name, "albums")
 
     @app.route("/albums/", methods=["GET", "POST"])
     def list_available_albums():

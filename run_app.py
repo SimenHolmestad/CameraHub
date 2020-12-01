@@ -9,7 +9,8 @@ from backend.app import create_app
 from backend.camera_modules.dummy_camera_module import DummyCameraModule
 from backend.camera_modules.rpicam_module import RPICameraModule
 
-STATIC_FOLDER_PATH = os.path.join("backend", "static")
+STATIC_FOLDER_NAME = "static"
+STATIC_FOLDER_PATH = os.path.join("backend", STATIC_FOLDER_NAME)
 ALBUM_DIR_PATH = os.path.join(STATIC_FOLDER_PATH, "albums")
 
 CAMERA_MODULE_OPTIONS = {"dummy_module": DummyCameraModule,
@@ -135,7 +136,7 @@ if __name__ == '__main__':
     camera_module = CAMERA_MODULE_OPTIONS[args.camera_module](ALBUM_DIR_PATH)
 
     # Run app
-    app = create_app(STATIC_FOLDER_PATH, camera_module)
+    app = create_app(STATIC_FOLDER_NAME, ALBUM_DIR_PATH, camera_module)
     app.run(debug=args.debug, host=host_ip)
 
     # Delete browser process if it was created
