@@ -5,11 +5,13 @@ import platform
 import argparse
 import qrcode
 import json
-from app import create_app
-from camera_modules.dummy_camera_module import DummyCameraModule
-from camera_modules.rpicam_module import RPICameraModule
+from backend.app import create_app
+from backend.camera_modules.dummy_camera_module import DummyCameraModule
+from backend.camera_modules.rpicam_module import RPICameraModule
 
-ALBUM_DIR_NAME = "albums"
+STATIC_FOLDER_PATH = os.path.join("backend", "static")
+ALBUM_DIR_PATH = os.path.join(STATIC_FOLDER_PATH, "albums")
+
 CAMERA_MODULE_OPTIONS = {"dummy_module": DummyCameraModule,
                          "rpicam_module": RPICameraModule}
 
@@ -59,11 +61,11 @@ def generate_qr_code(file_path, content):
     img.save(file_path)
 
 
-def generate_and_fill_qr_code_album(album_dir_name, start_page_url):
+def generate_and_fill_qr_code_album(static_folder_name, start_page_url):
     """Creates an album containing QR codes related to the application."""
     # Create qr-code album if it does not exist.
-    QR_CODE_ALBUM_NAME = ".qr_codes"
-    qr_code_folder_path = os.path.join(album_dir_name, QR_CODE_ALBUM_NAME)
+    QR_CODE_FOLDER_NAME = "qr_codes"
+    qr_code_folder_path = os.path.join(static_folder_name, QR_CODE_FOLDER_NAME)
     if not os.path.exists(qr_code_folder_path):
         os.makedirs(qr_code_folder_path)
 
@@ -102,19 +104,19 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Create album directory if it does not exist
-    if not os.path.exists(ALBUM_DIR_NAME):
-        os.makedirs(ALBUM_DIR_NAME)
+    if not os.path.exists(ALBUM_DIR_PATH):
+        os.makedirs(ALBUM_DIR_PATH)
 
     host_ip = find_ip_address_for_device()
 
     # Create QR codes
     start_page_url = "http://{}:5000/".format(host_ip)
-    generate_and_fill_qr_code_album(ALBUM_DIR_NAME, start_page_url)
+    generate_and_fill_qr_code_album(STATIC_FOLDER_PATH, start_page_url)
 
     # Print QR code URLs to console
-    start_page_qr_code_url = "http://" + host_ip + ":5000/albums/.qr_codes/start_page_qr_code.png"
+    start_page_qr_code_url = "http://" + host_ip + ":5000/static/qr_codes/start_page_qr_code.png"
     print("Url for start page QR code:", start_page_qr_code_url)
-    wifi_qr_code_url = "http://" + host_ip + ":5000/albums/.qr_codes/wifi_qr_code.png"
+    wifi_qr_code_url = "http://" + host_ip + ":5000/static/qr_codes/wifi_qr_code.png"
     print("Url for wifi QR code (if it exists):", wifi_qr_code_url)
 
     # NOTE: start_page_qr_code_url should be changed to an actual
@@ -127,10 +129,10 @@ if __name__ == '__main__':
         browser_process = open_webpage_in_device_browser(start_page_qr_code_url)
 
     # Initialize camera module based on input args
-    camera_module = CAMERA_MODULE_OPTIONS[args.camera_module](ALBUM_DIR_NAME)
+    camera_module = CAMERA_MODULE_OPTIONS[args.camera_module](ALBUM_DIR_PATH)
 
     # Run app
-    app = create_app(ALBUM_DIR_NAME, camera_module)
+    app = create_app(STATIC_FOLDER_PATH, camera_module)
     app.run(debug=args.debug, host=host_ip)
 
     # Delete browser process if it was created
