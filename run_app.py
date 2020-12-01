@@ -107,7 +107,10 @@ if __name__ == '__main__':
     if not os.path.exists(ALBUM_DIR_PATH):
         os.makedirs(ALBUM_DIR_PATH)
 
-    host_ip = find_ip_address_for_device()
+    if args.debug:
+        host_ip = "localhost"
+    else:
+        host_ip = find_ip_address_for_device()
 
     # Create QR codes
     start_page_url = "http://{}:5000/".format(host_ip)
