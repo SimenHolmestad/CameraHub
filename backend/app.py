@@ -69,7 +69,20 @@ def create_app(static_folder_name, camera_module):
             return jsonify({"error": error_message})
 
         if request.method == "POST":
-            return jsonify(camera_module.try_capture_image(album_name))
+            try:
+                static_image_path = camera_module.try_capture_image(album_name)
+            except IOError as error:
+                return jsonify({"error": str(error)})
+
+            image_url = url_for(
+                "static",
+                filename=static_image_path
+            )
+
+            return jsonify({
+                "success": "Image successfully captured",
+                "image_url": image_url
+            })
 
         description = ""
         album_description_path = os.path.join(
