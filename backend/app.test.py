@@ -17,7 +17,7 @@ class AppTestCase(unittest.TestCase):
         self.camera_module = DummyCameraModule(
             self.album_dir_path,
             number_of_circles=10)
-        self.app = create_app(self.static_dir_name, self.camera_module)
+        self.app = create_app(self.static_dir_name, self.album_dir_path, self.camera_module)
 
     def tearDown(self):
         self.static_dir.cleanup()
@@ -285,13 +285,13 @@ class AppTestCase(unittest.TestCase):
         self.add_dummy_image_file_to_album("album1", "image0003.png")
         self.create_next_image_number_file("album1", 4)
 
-        response = self.camera_module.try_capture_image("album1")
-        self.assertIn("success", response)
-        self.assertIn("image_file_path", response)
-        self.assertIn("0004", response["image_file_path"])
+        static_image_path = self.camera_module.try_capture_image("album1")
+        self.assertIn("0004", static_image_path)
+
+        image_path = os.path.join(self.static_dir_name, static_image_path)
 
         # Make sure the new image file exist
-        self.assertTrue(os.path.exists(response["image_file_path"]))
+        self.assertTrue(os.path.exists(image_path))
 
         # Make sure image number file is updated
         next_image_number_file_path = os.path.join(
@@ -316,8 +316,9 @@ class AppTestCase(unittest.TestCase):
         content = response.json
 
         self.assertIn("success", content)
-        self.assertIn("image_file_path", content)
-        self.assertTrue(os.path.exists(content["image_file_path"]))
+        self.assertIn("image_url", content)
+        expected_url = "/{}/albums/album1/images/image0001.png".format(self.static_dir_name)
+        self.assertEqual(content["image_url"], expected_url)
 
 
 if __name__ == '__main__':
