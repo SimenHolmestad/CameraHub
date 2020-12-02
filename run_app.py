@@ -140,7 +140,7 @@ def run_application(camera_module):
     # in the future.
 
     # Create QR codes
-    start_page_url = "http://{}:5000/".format(host_ip)
+    start_page_url = "http://{}:3000/".format(host_ip)
     generate_and_save_qr_codes(STATIC_FOLDER_PATH, start_page_url)
 
     # Open qr-code page in browser
@@ -163,7 +163,7 @@ def run_backend_in_debug_mode(camera_module):
     change_frontend_proxy_config("localhost")
 
     # Create QR codes
-    start_page_url = "http://localhost:5000/"
+    start_page_url = "http://{}:3000/".format(find_ip_address_for_device())
     generate_and_save_qr_codes(STATIC_FOLDER_PATH, start_page_url)
 
     # Run app
