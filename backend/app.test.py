@@ -91,10 +91,11 @@ class AppTestCase(unittest.TestCase):
             follow_redirects=True)
         content = response.json
 
-        # Check that the response is redirected correctly
+        # Check that the response is correct
+        self.assertIn("album_url", content)
         self.assertIn("album_name", content)
-        self.assertIn("image_urls", content)
-        self.assertIn("description", content)
+        self.assertIn(content["album_name"], "album1")
+        self.assertEqual(content["album_url"], "/albums/album1")
 
         # Check that the album exists
         album_folders = os.listdir(self.album_dir_path)
@@ -156,11 +157,11 @@ class AppTestCase(unittest.TestCase):
             follow_redirects=True)
         content = response.json
 
-        # Check that the response is redirected correctly
+        # Check that the response is correct
+        self.assertIn("album_url", content)
         self.assertIn("album_name", content)
-        self.assertIn("image_urls", content)
-        self.assertIn("description", content)
-        self.assertEqual(content["description"], "This is definitely a very nice album")
+        self.assertIn(content["album_name"], "album1")
+        self.assertEqual(content["album_url"], "/albums/album1")
 
         # Check that there still exists only one album
         album_folders = os.listdir(self.album_dir_path)

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, url_for, redirect, jsonify
+from flask import Flask, request, url_for, jsonify
 
 
 def create_app(static_folder_name, album_dir_path, camera_module):
@@ -39,7 +39,10 @@ def create_app(static_folder_name, album_dir_path, camera_module):
                 f.write(request.json.get("description"))
                 f.close()
 
-            return redirect(url_for("album_info", album_name=album_name))
+            return jsonify({
+                "album_name": album_name,
+                "album_url": url_for("album_info", album_name=album_name)
+            })
 
         # All folders not starting with a dot is considered albums
         albums = os.listdir(album_dir_path)
