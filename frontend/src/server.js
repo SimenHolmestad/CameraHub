@@ -1,5 +1,3 @@
-const API_BASE_URL = '';
-
 export const get_available_albums = async () => {
   const response = await fetch('/albums/');
   const { available_albums } = await response.json();
@@ -13,7 +11,7 @@ export const get_album_info = async album_name => {
 }
 
 export const capture_image_to_album = async album_name => {
-  const response = await fetch(`${API_BASE_URL}/albums/${album_name}/`, { method: 'POST'})
+  const response = await fetch('/albums/' + album_name, { method: 'POST'})
   const data = await response.json();
   return data;
 }
@@ -24,7 +22,7 @@ export const create_or_update_album = async (album_name, description) => {
     request_body["description"] = description
   }
 
-  const response = await fetch(`${API_BASE_URL}/albums/`, {
+  const response = await fetch('/albums/', {
     method: 'POST',
     body: JSON.stringify(request_body),
     headers: {

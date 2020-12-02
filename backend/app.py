@@ -98,7 +98,7 @@ def create_app(static_folder_name, album_dir_path, camera_module):
             description = f.read()
             f.close()
 
-        image_names.sort()
+        image_names.sort(reverse=True)
         image_urls = list(map(
             lambda image: url_for(
                 "static",

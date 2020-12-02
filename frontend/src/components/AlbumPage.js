@@ -1,27 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { get_album_info } from './../server'
+import { get_album_info, capture_image_to_album } from './../server'
 
-const useAlbumInfo = (albumName) => {
-  const [albumInfo, setAlbumInfo] = useState(null);
-  useEffect(() => {
-    get_album_info(albumName).then((data) => setAlbumInfo(data));
-  }, [albumName]);
-  return albumInfo;
-};
 
 function AlbumPage(props) {
-  const albumInfo = useAlbumInfo(props.match.params.albumName);
-  let albumList = null
-  if (albumInfo) {
-    albumList = albumInfo.image_urls.map(url => {
+  const albumName = props.match.params.albumName;
+  const [imageUrls, setImageUrls] = useState(null);
+
+  // Update the album image urls every second
+  useEffect(() => {
+    get_album_info(albumName).then((data) => setImageUrls(data.image_urls));
+    const interval = setInterval(() => {
+      get_album_info(albumName).then((data) => setImageUrls(data.image_urls));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [albumName]);
+
+  let albumImageList = null
+  if (imageUrls) {
+    console.log(imageUrls);
+    albumImageList = imageUrls.map(url => {
       return <img src={url} alt="no description provided" key={url}/>
     })
+  }
+
+  const handleClick = async (e) => {
+    e.preventDefault();
+    const response = await capture_image_to_album(albumName)
+    setImageUrls([response.image_url, ...imageUrls])
   }
 
   return (
     <div>
       <h1>{props.match.params.albumName}</h1>
-      { albumList }
+      <button onClick={e => handleClick(e)}>Capture new image</button>
+      <hr/>
+      { albumImageList }
     </div>
   );
 }
