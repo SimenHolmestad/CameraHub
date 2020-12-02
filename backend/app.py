@@ -20,10 +20,10 @@ def create_app(static_folder_name, album_dir_path, camera_module):
 
         """
         if request.method == "POST":
-            if "album_name" not in request.args:
+            if (not request.data) or ("album_name" not in request.json):
                 return jsonify({"error": "Missing required parameter <album_name>"})
 
-            album_name = request.args.get("album_name")
+            album_name = request.json.get("album_name")
             path_to_album = os.path.join(album_dir_path, album_name)
 
             # Create album if it does noe exist
@@ -33,10 +33,10 @@ def create_app(static_folder_name, album_dir_path, camera_module):
                 os.makedirs(album_images_path)
 
             # Update album description if <param:description> is given.
-            if "description" in request.args:
+            if "description" in request.json:
                 description_file_path = os.path.join(path_to_album, "description.txt")
                 f = open(description_file_path, "w")
-                f.write(request.args.get("description"))
+                f.write(request.json.get("description"))
                 f.close()
 
             return redirect(url_for("album_info", album_name=album_name))

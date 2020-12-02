@@ -2,6 +2,7 @@ import unittest
 from app import create_app
 import tempfile
 import os
+import json
 from camera_modules.dummy_camera_module import DummyCameraModule
 
 
@@ -85,7 +86,7 @@ class AppTestCase(unittest.TestCase):
         # This request should create the album specified with PARAMS
         response = test_client.post(
             '/albums',
-            query_string=PARAMS,
+            data=json.dumps(PARAMS),
             content_type='application/json',
             follow_redirects=True)
         content = response.json
@@ -150,7 +151,7 @@ class AppTestCase(unittest.TestCase):
         # This request should update the album description
         response = test_client.post(
             '/albums',
-            query_string=PARAMS,
+            data=json.dumps(PARAMS),
             content_type='application/json',
             follow_redirects=True)
         content = response.json
