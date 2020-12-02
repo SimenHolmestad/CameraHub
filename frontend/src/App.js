@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import Menu from './components/Menu';
+import AlbumPage from './components/AlbumPage';
 import './App.css';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch
+} from 'react-router-dom';
 
 function App() {
-  const [albums, setAlbums] = useState([]);
-
-  useEffect(() => {
-    fetch('/albums/').then(res => res.json()).then(data => {
-      setAlbums(data.available_albums);
-    });
-  }, []);
-
   return (
     <div className="App">
       <header className="App-header">
-        <p>
-          The albums are:
-        </p>
-        <ul>
-          {albums.map(albumName => <li key={albumName}>{albumName}</li>)}
-        </ul>
+        {/* <Menu/> */}
+        <Router>
+          <Switch>
+            <Route exact path='/album/:albumName' component={ AlbumPage }/>
+            <Route exact path='/' component={ Menu }/>
+          </Switch>
+        </Router>
       </header>
     </div>
   );
