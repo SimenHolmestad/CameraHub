@@ -94,8 +94,40 @@ def generate_and_save_qr_codes(static_folder_name, start_page_url):
         generate_qr_code(wifi_qr_code_file_path, wifi_qr_code_content)
 
 
+def change_frontend_proxy_config(host_ip):
+    """Change the proxy-value of the package.json file so that it has the right ip.
+
+    This is probably not a good idea, but I guess it might work for now.
+    """
+    f = open("frontend/package.json", "r")
+    lines = f.readlines()
+    f.close()
+    for i in range(len(lines)):
+        if lines[i].startswith("  \"proxy\": "):
+            lines[i] = "  \"proxy\": \"http://{}:5000/\"\n".format(host_ip)
+
+    f = open("frontend/package.json", "w")
+    lines = f.writelines(lines)
+    f.close()
+
+
+def run_frontend(host_ip):
+    """Runs the frontend and returns the npm process so that it can be terminated later"""
+    change_frontend_proxy_config(host_ip)
+    os.chdir("frontend")
+    if not os.path.exists("node_modules"):
+        print("Installing react dependencies")
+        subprocess.run("npm install")
+
+    npm_process = subprocess.Popen("BROWSER=none npm start", shell=True)
+    os.chdir("./..")
+    return npm_process
+
+
 def run_application(camera_module):
     host_ip = find_ip_address_for_device()
+
+    npm_process = run_frontend(host_ip)
 
     # Print QR code URLs to console
     start_page_qr_code_url = "http://" + host_ip + ":5000/static/qr_codes/start_page_qr_code.png"
@@ -122,9 +154,13 @@ def run_application(camera_module):
     if browser_process:
         browser_process.terminate()
 
+    npm_process.terminate()
+
 
 def run_backend_in_debug_mode(camera_module):
     print("Running the backend in debug mode. Start the frontend in a separate terminal window")
+
+    change_frontend_proxy_config("localhost")
 
     # Create QR codes
     start_page_url = "http://localhost:5000/"
