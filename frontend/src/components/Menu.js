@@ -25,7 +25,7 @@ function Menu() {
         The albums are:
       </p>
       <ul>
-        {albums.map(albumName => <li key={albumName}><Link to={ "/album/" + albumName}>{albumName}</Link></li>)}
+        {albums.map(albumName => <li key={albumName}><Link to={ "/album/" + albumName }>{ albumName }</Link></li>)}
       </ul>
       <NewAlbumForm/>
     </div>
