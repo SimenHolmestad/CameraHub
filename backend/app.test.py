@@ -2,6 +2,7 @@ import unittest
 from app import create_app
 import tempfile
 import os
+import json
 from camera_modules.dummy_camera_module import DummyCameraModule
 
 
@@ -9,21 +10,23 @@ class AppTestCase(unittest.TestCase):
     def setUp(self):
         # Create a new album directory so that the "albums" directory
         # is left untouched while testing.
-        self.album_dir = tempfile.TemporaryDirectory(dir=".")
-        self.album_dir_name = self.album_dir.name.split("./")[1]
+        self.static_dir = tempfile.TemporaryDirectory(dir=".")
+        self.static_dir_name = self.static_dir.name.split("./")[1]
+        self.album_dir_path = os.path.join(self.static_dir_name, "albums")
+        os.makedirs(self.album_dir_path)
 
         self.camera_module = DummyCameraModule(
-            self.album_dir_name,
+            self.album_dir_path,
             number_of_circles=10)
-        self.app = create_app(self.album_dir_name, self.camera_module)
+        self.app = create_app(self.static_dir_name, self.album_dir_path, self.camera_module)
 
     def tearDown(self):
-        self.album_dir.cleanup()
+        self.static_dir.cleanup()
 
     def create_temp_album(self, album_name, description=""):
         """Create an album with the specified name and description."""
         album_directory_path = os.path.join(
-            self.album_dir.name,
+            self.album_dir_path,
             album_name)
 
         os.makedirs(os.path.join(
@@ -40,7 +43,7 @@ class AppTestCase(unittest.TestCase):
     def add_dummy_image_file_to_album(self, album_name, image_name):
         """Create a dummy image file with the specified name to the specified album. """
         path_to_image_file = os.path.join(
-            self.album_dir_name,
+            self.album_dir_path,
             album_name,
             "images",
             image_name
@@ -49,10 +52,11 @@ class AppTestCase(unittest.TestCase):
 
     def create_next_image_number_file(self, album_name, next_image_number):
         next_image_number_file_path = os.path.join(
-            self.album_dir_name,
+            self.album_dir_path,
             album_name,
             ".next_image_number.txt"
         )
+
         f = open(next_image_number_file_path, "w")
         f.write(str(next_image_number))
         f.close()
@@ -61,7 +65,7 @@ class AppTestCase(unittest.TestCase):
         self.create_temp_album("album1")
         self.create_temp_album("album2")
         test_client = self.app.test_client()
-        response = test_client.get('/', content_type='application/json')
+        response = test_client.get('/albums/', content_type='application/json')
         self.assertEqual(response.status_code, 200)
         content = response.json
         self.assertEqual(len(content["available_albums"]), 2)
@@ -76,35 +80,36 @@ class AppTestCase(unittest.TestCase):
         }
 
         # Make sure there are no albums
-        album_folders = os.listdir(self.album_dir_name)
+        album_folders = os.listdir(self.album_dir_path)
         self.assertEqual(len(album_folders), 0)
 
         # This request should create the album specified with PARAMS
         response = test_client.post(
-            '/',
-            query_string=PARAMS,
+            '/albums',
+            data=json.dumps(PARAMS),
             content_type='application/json',
             follow_redirects=True)
         content = response.json
 
-        # Check that the response is redirected correctly
+        # Check that the response is correct
+        self.assertIn("album_url", content)
         self.assertIn("album_name", content)
-        self.assertIn("image_urls", content)
-        self.assertIn("description", content)
+        self.assertIn(content["album_name"], "album1")
+        self.assertEqual(content["album_url"], "/albums/album1")
 
         # Check that the album exists
-        album_folders = os.listdir(self.album_dir_name)
+        album_folders = os.listdir(self.album_dir_path)
         self.assertEqual(len(album_folders), 1)
-        self.assertIn("album1", os.listdir(self.album_dir_name))
+        self.assertIn("album1", os.listdir(self.album_dir_path))
 
         # Check that the album contains the right files and folders
-        album_content = os.listdir(os.path.join(self.album_dir_name, "album1"))
+        album_content = os.listdir(os.path.join(self.album_dir_path, "album1"))
         self.assertIn("description.txt", album_content)
         self.assertIn("images", album_content)
 
         # Check that the description is correct
         description_file_path = os.path.join(
-            self.album_dir_name,
+            self.album_dir_path,
             "album1",
             "description.txt"
         )
@@ -117,25 +122,25 @@ class AppTestCase(unittest.TestCase):
         test_client = self.app.test_client()
 
         # Make sure there are no albums
-        album_folders = os.listdir(self.album_dir_name)
+        album_folders = os.listdir(self.album_dir_path)
         self.assertEqual(len(album_folders), 0)
 
         # This request should give an error
-        response = test_client.post('/', content_type='application/json')
+        response = test_client.post('/albums/', content_type='application/json')
         content = response.json
 
         # Make sure the response was an error
         self.assertIn("error", content)
 
         # Check that there are still no albums
-        album_folders = os.listdir(self.album_dir_name)
+        album_folders = os.listdir(self.album_dir_path)
         self.assertEqual(len(album_folders), 0)
 
     def test_update_album_description(self):
         self.create_temp_album("album1", description="This is not a very nice album")
 
         # Make sure there only exist one album
-        album_folders = os.listdir(self.album_dir_name)
+        album_folders = os.listdir(self.album_dir_path)
         self.assertEqual(len(album_folders), 1)
 
         test_client = self.app.test_client()
@@ -146,26 +151,26 @@ class AppTestCase(unittest.TestCase):
 
         # This request should update the album description
         response = test_client.post(
-            '/',
-            query_string=PARAMS,
+            '/albums',
+            data=json.dumps(PARAMS),
             content_type='application/json',
             follow_redirects=True)
         content = response.json
 
-        # Check that the response is redirected correctly
+        # Check that the response is correct
+        self.assertIn("album_url", content)
         self.assertIn("album_name", content)
-        self.assertIn("image_urls", content)
-        self.assertIn("description", content)
-        self.assertEqual(content["description"], "This is definitely a very nice album")
+        self.assertIn(content["album_name"], "album1")
+        self.assertEqual(content["album_url"], "/albums/album1")
 
         # Check that there still exists only one album
-        album_folders = os.listdir(self.album_dir_name)
+        album_folders = os.listdir(self.album_dir_path)
         self.assertEqual(len(album_folders), 1)
-        self.assertIn("album1", os.listdir(self.album_dir_name))
+        self.assertIn("album1", os.listdir(self.album_dir_path))
 
         # Check that the description file is correct
         description_file_path = os.path.join(
-            self.album_dir_name,
+            self.album_dir_path,
             "album1",
             "description.txt"
         )
@@ -178,7 +183,7 @@ class AppTestCase(unittest.TestCase):
         test_client = self.app.test_client()
 
         # This request should give an error as album1 does not exist
-        response = test_client.get('/album1', content_type='application/json')
+        response = test_client.get('/albums/album1', content_type='application/json')
         content = response.json
 
         self.assertIn("error", content)
@@ -189,7 +194,7 @@ class AppTestCase(unittest.TestCase):
         self.create_temp_album("album1")
         test_client = self.app.test_client()
 
-        response = test_client.get('/album1', content_type='application/json')
+        response = test_client.get('/albums/album1', content_type='application/json')
         content = response.json
 
         self.assertIn("album_name", content)
@@ -209,7 +214,7 @@ class AppTestCase(unittest.TestCase):
         self.add_dummy_image_file_to_album("album1", "image3.jpg")
 
         test_client = self.app.test_client()
-        response = test_client.get('/album1', content_type='application/json')
+        response = test_client.get('/albums/album1', content_type='application/json')
         content = response.json
 
         self.assertIn("album_name", content)
@@ -222,7 +227,7 @@ class AppTestCase(unittest.TestCase):
         # Check that the dummy file paths exists in the image_urls list
         self.assertEqual(len(content["image_urls"]), 3)
         path_to_album_images = os.path.join(
-            self.album_dir_name,
+            self.album_dir_path,
             "album1",
             "images"
         )
@@ -234,7 +239,7 @@ class AppTestCase(unittest.TestCase):
         self.create_temp_album("album1")
         self.camera_module.write_next_image_number_file("album1", 4)
         next_image_number_file_path = os.path.join(
-            self.album_dir_name,
+            self.album_dir_path,
             "album1",
             ".next_image_number.txt"
         )
@@ -282,17 +287,17 @@ class AppTestCase(unittest.TestCase):
         self.add_dummy_image_file_to_album("album1", "image0003.png")
         self.create_next_image_number_file("album1", 4)
 
-        response = self.camera_module.try_capture_image("album1")
-        self.assertIn("success", response)
-        self.assertIn("image_file_path", response)
-        self.assertIn("0004", response["image_file_path"])
+        static_image_path = self.camera_module.try_capture_image("album1")
+        self.assertIn("0004", static_image_path)
+
+        image_path = os.path.join(self.static_dir_name, static_image_path)
 
         # Make sure the new image file exist
-        self.assertTrue(os.path.exists(response["image_file_path"]))
+        self.assertTrue(os.path.exists(image_path))
 
         # Make sure image number file is updated
         next_image_number_file_path = os.path.join(
-            self.album_dir_name,
+            self.album_dir_path,
             "album1",
             ".next_image_number.txt"
         )
@@ -307,14 +312,15 @@ class AppTestCase(unittest.TestCase):
         test_client = self.app.test_client()
 
         response = test_client.post(
-            "/album1",
+            "/albums/album1",
             content_type='application/json',
             follow_redirects=True)
         content = response.json
 
         self.assertIn("success", content)
-        self.assertIn("image_file_path", content)
-        self.assertTrue(os.path.exists(content["image_file_path"]))
+        self.assertIn("image_url", content)
+        expected_url = "/{}/albums/album1/images/image0001.png".format(self.static_dir_name)
+        self.assertEqual(content["image_url"], expected_url)
 
 
 if __name__ == '__main__':

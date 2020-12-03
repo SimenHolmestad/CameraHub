@@ -1,11 +1,11 @@
 import os
-from flask import Flask, request, url_for, redirect, jsonify
+from flask import Flask, request, url_for, jsonify
 
 
-def create_app(album_dir_name, camera_module):
-    app = Flask(__name__, static_folder=album_dir_name)
+def create_app(static_folder_name, album_dir_path, camera_module):
+    app = Flask(__name__, static_folder=static_folder_name)
 
-    @app.route("/", methods=["GET", "POST"])
+    @app.route("/albums/", methods=["GET", "POST"])
     def list_available_albums():
         """An endpoint for listing albums and creating new ones.
 
@@ -20,11 +20,11 @@ def create_app(album_dir_name, camera_module):
 
         """
         if request.method == "POST":
-            if "album_name" not in request.args:
+            if (not request.data) or ("album_name" not in request.json):
                 return jsonify({"error": "Missing required parameter <album_name>"})
 
-            album_name = request.args.get("album_name")
-            path_to_album = os.path.join(album_dir_name, album_name)
+            album_name = request.json.get("album_name")
+            path_to_album = os.path.join(album_dir_path, album_name)
 
             # Create album if it does noe exist
             if not os.path.exists(path_to_album):
@@ -33,20 +33,23 @@ def create_app(album_dir_name, camera_module):
                 os.makedirs(album_images_path)
 
             # Update album description if <param:description> is given.
-            if "description" in request.args:
+            if "description" in request.json:
                 description_file_path = os.path.join(path_to_album, "description.txt")
                 f = open(description_file_path, "w")
-                f.write(request.args.get("description"))
+                f.write(request.json.get("description"))
                 f.close()
 
-            return redirect(url_for("album_info", album_name=album_name))
+            return jsonify({
+                "album_name": album_name,
+                "album_url": url_for("album_info", album_name=album_name)
+            })
 
         # All folders not starting with a dot is considered albums
-        albums = [a for a in os.listdir(album_dir_name) if not a.startswith(".")]
+        albums = os.listdir(album_dir_path)
         albums.sort()
         return jsonify({"available_albums": albums})
 
-    @app.route("/<album_name>", methods=["GET", "POST"])
+    @app.route("/albums/<album_name>", methods=["GET", "POST"])
     def album_info(album_name):
         """An endpoint for listing images in an album or capture a new one
 
@@ -62,17 +65,30 @@ def create_app(album_dir_name, camera_module):
         """
         try:
             image_names = os.listdir(
-                os.path.join(album_dir_name, album_name, "images"))
+                os.path.join(album_dir_path, album_name, "images"))
         except FileNotFoundError:
             error_message = "No album with the name \"{}\" exists".format(album_name)
             return jsonify({"error": error_message})
 
         if request.method == "POST":
-            return jsonify(camera_module.try_capture_image(album_name))
+            try:
+                static_image_path = camera_module.try_capture_image(album_name)
+            except IOError as error:
+                return jsonify({"error": str(error)})
+
+            image_url = url_for(
+                "static",
+                filename=static_image_path
+            )
+
+            return jsonify({
+                "success": "Image successfully captured",
+                "image_url": image_url
+            })
 
         description = ""
         album_description_path = os.path.join(
-            album_dir_name,
+            album_dir_path,
             album_name,
             "description.txt"
         )
@@ -82,11 +98,11 @@ def create_app(album_dir_name, camera_module):
             description = f.read()
             f.close()
 
-        image_names.sort()
+        image_names.sort(reverse=True)
         image_urls = list(map(
             lambda image: url_for(
                 "static",
-                filename="{}/images/{}".format(album_name, image)
+                filename="albums/{}/images/{}".format(album_name, image)
             ), image_names
         ))
 

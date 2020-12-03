@@ -34,7 +34,6 @@ class BaseCameraModule(ABC):
 
         On fail: Returns a dictionary containing a message of what
         went wrong.
-
         """
         assert os.path.exists(os.path.join(
             self.album_dir_name,
@@ -43,23 +42,18 @@ class BaseCameraModule(ABC):
         ))
 
         next_image_number = self.find_next_image_number(album_name)
-        next_image_name = self.image_name_prefix + str(next_image_number).rjust(4, "0")
+        next_image_name = self.image_name_prefix + str(next_image_number).rjust(4, "0") + self.file_extension
         next_image_path = os.path.join(
             self.album_dir_name,
             album_name,
             "images",
-            next_image_name + self.file_extension
+            next_image_name
         )
-        try:
-            self.capture_image(next_image_path)
-            self.write_next_image_number_file(album_name, next_image_number + 1)
-        except IOError as error:
-            return {"error": str(error)}
 
-        return {
-            "success": "Image successfully captured",
-            "image_file_path": next_image_path
-        }
+        self.capture_image(next_image_path)
+        self.write_next_image_number_file(album_name, next_image_number + 1)
+
+        return "albums/{}/images/{}".format(album_name, next_image_name)
 
     def find_next_image_number(self, album_name):
         """Find the image number of the next image.

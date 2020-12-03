@@ -1,5 +1,5 @@
 # CameraHub
-CameraHub is meant to be an API for controlling a camera (DSLR or Raspberry PI camera module) through a web interface. This repo contains the current Flask backend for the project and is meant to run on a Raspberry PI.
+CameraHub is meant to be an API for controlling a camera (DSLR or Raspberry PI camera module) through a web interface. The repo consists of a Flask backend and a react frontend which is meant to be run on a Raspberry PI.
 
 # Motivation
 CameraHub does much of the same as [this project](https://github.com/SimenHolmestad/Fotobox) (made some time ago), but aims to:
@@ -13,7 +13,7 @@ CameraHub does much of the same as [this project](https://github.com/SimenHolmes
 
 The backend is developed in Flask as using Django probably would have been overkill when there is no database and no authentication.
 # Running the application for development
-To run the application for development, do:
+To run the application for development, make sure both python and node are installed and do:
 ```
 git clone https://github.com/SimenHolmestad/CameraHub.git
 cd CameraHub
@@ -21,11 +21,17 @@ pip install -r requirements.txt
 export FLASK_ENV=development
 python3 run_app.py -d
 ```
-This will use the [dummy camera module](#the-dummy-camera-module), so that no camera connection is needed.
+Then, open a second terminal window and do
+```
+cd CameraHub/frontend
+npm install
+npm start
+```
+Running the project this way will use the [dummy camera module](#the-dummy-camera-module), so that no camera connection is needed when developing.
 # Setting up the application on a Raspberry PI
 Running the application on the Raspberry PI can be done in many ways. One of the ways is described below:
 ## Installing the OS
-It is recommended to use the operating system "Raspberry Pi OS with desktop" which can be found [here](https://www.raspberrypi.org/software/operating-systems/). This can be written to an sd-card by using the Raspberry PI Imager or the [balena etcher](https://www.balena.io/etcher/).
+It is recommended to use the operating system "Raspberry Pi OS with desktop" which can be found [here](https://www.raspberrypi.org/software/operating-systems/). This can be written to an sd-card by using the Raspberry PI Imager or the [balena etcher](https://www.balena.io/etcher/). The "Raspberry Pi OS with desktop" should come with both python and node installed.
 ## Setting up the Raspberry PI
 When having a keyboard, mouse and monitor, this should not be a problem. If not, check out [this page about connecting to the RPI in headless mode](https://www.raspberrypi.org/documentation/remote-access/README.md) and possibly [this page about connecting the RPI to wifi in headless mode](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md).
 ## Running the appliction on Raspberry PI
@@ -33,7 +39,7 @@ To run the application on the Raspberry pi, do:
 ```
 git clone https://github.com/SimenHolmestad/CameraHub.git
 cd CameraHub
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 python3 run_app.py --camera_module <name_of_module>
 ```
 Where `<name_of_module>` is one of the modules in [the camera modules section](#camera-modules).
@@ -43,7 +49,7 @@ The CameraHub project does not use a database and instead relies on just using f
 The folder structure works as follows:
 
 ## Album location
-The `albums`-folder is created when the app starts for the first time and is used to store all album-information. Every album is stored as a folder in the `albums`-folder, and the name of the folder is the name of the album. Rename an album-folder and the album is remained. Remove an album folder from the `albums`-folder, and the system will no longer know that it has existed.
+The `albums`-folder (located at `backend/static/albums`) is created when the app starts for the first time and is used to store all album-information. Every album is stored as a folder in the `albums`-folder, and the name of the folder is the name of the album. Rename an album-folder and the album is remained. Remove an album folder from the `albums`-folder, and the system will no longer know that it has existed.
 ## Album folder contents
 Each album folder **must** contain:
 - A folder named `images` which contains the images of the album and **nothing more**.
@@ -55,22 +61,20 @@ In addition, each album folder **may** contain:
 - A file named `description.txt` with a description of the album
 - Other files and folders not used by CameraHub, such as folders containing raw images.
 
-# Endpoints
+# API Endpoints
 Using the endpoints of the API it is possible to create albums, get the images of albums and capture new images to an album. The following endpoints are provided:
 
-## GET `"/"` -> List available albums
+## GET `"/albums/"` -> List available albums
 List all available albums in CameraHub and return the names as a JSON-response.
-## POST `"/"` -> Add new album
+## POST `"/albums/"` -> Add new album
 Create a new album named `<param:album_name>` if it does not already exist. If `<param:description>` is given, update the description of `<param:album_name>` with the contents of `<param:description>`. Redirects to the album info endpoint for `<param:album_name>` when done.
-## GET `"/<album_name>"` -> Get information for album
+## GET `"/albums/<album_name>"` -> Get information for album
 Returns a list of the image links for all images in `<album_name>`. If an album with `<album_name>` does not exist, an error response is returned instead.
-## POST `"/<album_name>"` -> Capture new image to album
+## POST `"/albums/<album_name>"` -> Capture new image to album
 Try to capture an image with the camera module and add the image to `<album_name>`. The response will contain the image link for the image which has been captured. If an error has occurred, an error message is returned instead.
 
 # Camera modules
-The camera module is the part of the system which handles image capturing. If CameraHub is to function with another type of camera, a new camera module has to be made. Most of the basic camera module functionality is implemented in `camera_modules/base_camera_module.py`, so creating a new one should not be that difficult – just create a class which inherits from `BaseCameraModule` and implements the `capture_image`-method.
-
-It is possible to test a camera module by running
+The camera module is the part of the system which handles image capturing. If CameraHub is to function with another type of camera, a new camera module has to be made. It is possible to test a camera module by running
 ```
 python3 test_camera_module.py <name_of_module>
 ```
@@ -91,6 +95,10 @@ The "Raspberry PI camera module" camera module (`camera_modules/rpicam_module.py
 Currently, the module uses the `raspistill` command. For more information about getting started with the RPI camera module, see [the official tutorial](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera).
 # Future camera modules
 ## The DSLR camera module
+# Creating a new camera module
+Most of the basic camera module functionality is implemented in `backend/camera_modules/base_camera_module.py`, so creating a new one should not be that difficult – just create a class which inherits from `BaseCameraModule` and implements the `capture_image`-method.
+
+Also, remember to update the dictionary `CAMERA_MODULE_OPTIONS` in run_app.py.
 
 # Creating a QR code for wifi on app start
 If a QR code for connecting to wifi is desired, such a QR code will be generated on app start if the file `network_details.json` is present in the root directory of the project. The file should be on the following format:
