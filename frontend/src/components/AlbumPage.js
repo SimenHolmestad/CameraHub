@@ -83,8 +83,9 @@ function AlbumPage(props) {
             </CardActions>
           </Card>
         </Grid>
-        ))}
-    </Grid>)
+      ))}
+      </Grid>
+    )
   } else {
     cardGrid = (
       <Grid container spacing={2} justify="center">
