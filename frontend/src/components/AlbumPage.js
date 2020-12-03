@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { get_album_info, capture_image_to_album } from './../server'
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -43,6 +44,8 @@ function AlbumPage(props) {
   const albumName = props.match.params.albumName;
   const [imageUrls, setImageUrls] = useState(null);
   const [albumDescription, setAlbumDescription] = React.useState("");
+  const [isCapturingImage, setIsCapturingImage] = React.useState(false);
+
 
   // Update the album data from server every 5 seconds
   useEffect(() => {
@@ -61,33 +64,53 @@ function AlbumPage(props) {
 
   const classes = useStyles();
 
-  let cards = null
+  let cardGrid = null
   if (imageUrls) {
-    cards = imageUrls.map((url) => (
-      <Grid item key={url} xs={12} sm={6} md={4}>
-        <Card className={classes.card}>
-          <CardMedia
-            className={classes.cardMedia}
-            image={url}
-            title="No description provided"
-          />
-          <CardActions>
-            <Button size="small" color="primary">
-              View
-            </Button>
-            <Button size="small" color="primary">
-              Edit
-            </Button>
-          </CardActions>
-        </Card>
+    cardGrid = (
+      <Grid container spacing={4}>
+      { imageUrls.map((url) => (
+        <Grid item key={url} xs={12} sm={6} md={4}>
+          <Card className={classes.card}>
+            <CardMedia
+              className={classes.cardMedia}
+              image={url}
+              title="No description provided"
+            />
+            <CardActions>
+              <Button size="small" color="primary">
+                View in full size
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+        ))}
+    </Grid>)
+  } else {
+    cardGrid = (
+      <Grid container spacing={2} justify="center">
+        <CircularProgress justify="center"/>
       </Grid>
-    ))
+    )
   }
 
   const handleClick = async (e) => {
     e.preventDefault();
+    setIsCapturingImage(true)
     const response = await capture_image_to_album(albumName)
     setImageUrls([response.image_url, ...imageUrls])
+    setIsCapturingImage(false)
+  }
+
+  let captureButton = null
+  if (!isCapturingImage) {
+    captureButton = (
+      <Button onClick={e => handleClick(e)} variant="contained" color="primary">
+        <CameraIcon className={classes.icon} />
+        Capture new image to album
+      </Button>
+    )
+  } else {
+    captureButton = <CircularProgress/>
   }
 
   return (
@@ -102,18 +125,13 @@ function AlbumPage(props) {
           </Typography>
           <div className={classes.heroButtons}>
             <Grid container spacing={2} justify="center">
-              <Button onClick={e => handleClick(e)} variant="contained" color="primary">
-                <CameraIcon className={classes.icon} />
-                Capture new image to album
-              </Button>
+              { captureButton }
             </Grid>
           </div>
         </Container>
       </div>
       <Container className={classes.cardGrid} maxWidth="md">
-        <Grid container spacing={4}>
-          { cards }
-        </Grid>
+        { cardGrid }
       </Container>
     </>
   );
