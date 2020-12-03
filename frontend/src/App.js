@@ -24,6 +24,11 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(6),
   },
+  logo: {
+    textDecoration:"inherit",
+    color:"inherit",
+    textTransform: "none"
+  }
 }));
 
 
@@ -36,7 +41,7 @@ function App() {
         {/* header */}
         <AppBar position="relative">
           <Toolbar>
-            <Button component={Link} to={ "/" } style={{ textDecoration:"inherit", color:"inherit"}}>
+            <Button component={Link} to={ "/" } className={classes.logo}>
               <CameraIcon className={classes.icon} />
               <Typography variant="h6" color="inherit" noWrap>
                 CameraHub
