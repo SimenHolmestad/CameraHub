@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '@material-ui/core/Card';
 import { get_available_albums } from './../server'
-import './NewAlbumForm'
-import NewAlbumForm from './NewAlbumForm';
+import NewAlbumDialog from './NewAlbumDialog';
 import { Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
@@ -22,11 +21,15 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(8, 0, 6),
   },
+  albumCardContainer: {
+    paddingBottom: "20px"
+  },
   card: {
     height: '100%',
     width: '100%',
     marginTop: '20px',
     paddingTop: '10px',
+    cursor: 'pointer'
   },
   albumLink: {
     textDecoration:"inherit",
@@ -41,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
 function Menu() {
   const albumNames = useAlbumNames();
   const classes = useStyles();
+  const [dialogOpen, setDialogOpen] = React.useState(false);
 
   let albumList = null
   if (!albumNames) {
@@ -58,6 +62,14 @@ function Menu() {
     ))
   }
 
+  const handleClickOpen = () => {
+    setDialogOpen(true);
+  };
+
+  const handleClose = () => {
+    setDialogOpen(false);
+  };
+
   return (
     <>
       <div className={classes.heroContent}>
@@ -70,10 +82,15 @@ function Menu() {
           </Typography>
         </Container>
       </div>
-      <Container maxWidth="md">
+      <Container maxWidth="md" className={classes.albumCardContainer}>
         { albumList }
-        <NewAlbumForm/>
+        <Card className={classes.card} onClick={handleClickOpen}>
+          <Typography variant="h3" align="center" color="textPrimary" className={classes.albumLinkText} paragraph>
+            Create new album
+          </Typography>
+        </Card>
       </Container>
+      <NewAlbumDialog open={dialogOpen} handleClose={handleClose}/>
     </>
   );
 }
