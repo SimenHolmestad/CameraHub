@@ -26,8 +26,13 @@ def create_thumbnail(input_path, output_path):
 
 
 def create_thumbnail_from_album_image(path_to_image):
+    """Create thumbnail using file in <path_to_image>.
+
+    Returns the thumbnail filename.
+    """
     path_to_thumbnail = get_thumbnail_path_from_album_image_path(path_to_image)
     create_thumbnail(path_to_image, path_to_thumbnail)
+    return os.path.split(path_to_thumbnail)[1]
 
 
 def create_thumbnails_for_album(path_to_album):

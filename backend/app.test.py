@@ -206,10 +206,12 @@ class AppTestCase(unittest.TestCase):
 
         self.assertIn("album_name", content)
         self.assertIn("image_urls", content)
+        self.assertIn("thumbnail_urls", content)
         self.assertIn("description", content)
 
         self.assertEqual(content["description"], "")
         self.assertEqual(len(content["image_urls"]), 0)
+        self.assertEqual(len(content["thumbnail_urls"]), 0)
         self.assertEqual(content["album_name"], "album1")
 
     def test_get_info_for_album_with_description_file(self):
@@ -218,7 +220,6 @@ class AppTestCase(unittest.TestCase):
         # Create some dummy files to add to the album
         self.add_dummy_image_file_to_album("album1", "image1.jpg")
         self.add_dummy_image_file_to_album("album1", "image2.jpg")
-        self.add_dummy_image_file_to_album("album1", "image3.jpg")
 
         test_client = self.app.test_client()
         response = test_client.get('/albums/album1', content_type='application/json')
@@ -226,21 +227,25 @@ class AppTestCase(unittest.TestCase):
 
         self.assertIn("album_name", content)
         self.assertIn("image_urls", content)
+        self.assertIn("thumbnail_urls", content)
         self.assertIn("description", content)
 
         self.assertEqual(content["description"], "This is a very nice album")
         self.assertEqual(content["album_name"], "album1")
 
-        # Check that the dummy file paths exists in the image_urls list
-        self.assertEqual(len(content["image_urls"]), 3)
-        path_to_album_images = os.path.join(
-            self.album_dir_path,
-            "album1",
-            "images"
-        )
-        self.assertIn(os.path.join("/", path_to_album_images, "image1.jpg"), content["image_urls"])
-        self.assertIn(os.path.join("/", path_to_album_images, "image2.jpg"), content["image_urls"])
-        self.assertIn(os.path.join("/", path_to_album_images, "image3.jpg"), content["image_urls"])
+        # Check that the dummy file paths exist in the image_urls list
+        self.assertEqual(len(content["image_urls"]), 2)
+        self.assertEqual(len(content["thumbnail_urls"]), 2)
+
+        expected_image1_url = "/{}/albums/album1/images/image1.jpg".format(self.static_dir_name)
+        self.assertIn(expected_image1_url, content["image_urls"])
+        expected_image2_url = "/{}/albums/album1/images/image2.jpg".format(self.static_dir_name)
+        self.assertIn(expected_image2_url, content["image_urls"])
+
+        expected_thumbnail1_url = "/{}/albums/album1/thumbnails/image1.jpg".format(self.static_dir_name)
+        self.assertIn(expected_thumbnail1_url, content["thumbnail_urls"])
+        expected_thumbnail2_url = "/{}/albums/album1/thumbnails/image2.jpg".format(self.static_dir_name)
+        self.assertIn(expected_thumbnail2_url, content["thumbnail_urls"])
 
     def test_camera_module_write_next_image_number(self):
         self.create_temp_album("album1")
@@ -326,8 +331,12 @@ class AppTestCase(unittest.TestCase):
 
         self.assertIn("success", content)
         self.assertIn("image_url", content)
-        expected_url = "/{}/albums/album1/images/image0001.png".format(self.static_dir_name)
-        self.assertEqual(content["image_url"], expected_url)
+        expected_image_url = "/{}/albums/album1/images/image0001.png".format(self.static_dir_name)
+        self.assertEqual(content["image_url"], expected_image_url)
+
+        self.assertIn("thumbnail_url", content)
+        expected_thumbnail_url = "/{}/albums/album1/thumbnails/image0001.jpg".format(self.static_dir_name)
+        self.assertEqual(content["thumbnail_url"], expected_thumbnail_url)
 
     def test_get_thumbnail_path_from_album_image_path(self):
         test_path = os.path.join(

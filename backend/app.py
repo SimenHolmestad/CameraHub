@@ -84,16 +84,24 @@ def create_app(static_folder_name, static_folder_path, camera_module):
                 static_folder_path,
                 static_image_path
             )
-            create_thumbnail_from_album_image(image_path)
+            thumbnail_name = create_thumbnail_from_album_image(image_path)
 
             image_url = url_for(
                 "static",
                 filename=static_image_path
             )
+            thumbnail_url = url_for(
+                "static",
+                filename="albums/{}/thumbnails/{}".format(
+                    album_name,
+                    thumbnail_name
+                )
+            )
 
             return jsonify({
                 "success": "Image successfully captured",
-                "image_url": image_url
+                "image_url": image_url,
+                "thumbnail_url": thumbnail_url
             })
 
         description = ""
@@ -110,15 +118,27 @@ def create_app(static_folder_name, static_folder_path, camera_module):
 
         image_names.sort(reverse=True)
         image_urls = list(map(
-            lambda image: url_for(
+            lambda image_name: url_for(
                 "static",
-                filename="albums/{}/images/{}".format(album_name, image)
+                filename="albums/{}/images/{}".format(album_name, image_name)
+            ), image_names
+        ))
+
+        # We assume all images hava a valid thumbnail.
+        thumbnail_urls = list(map(
+            lambda image_name: url_for(
+                "static",
+                filename="albums/{}/thumbnails/{}".format(
+                    album_name,
+                    image_name.split(".")[0] + ".jpg"
+                )
             ), image_names
         ))
 
         return jsonify({
             "album_name": album_name,
             "image_urls": image_urls,
+            "thumbnail_urls": thumbnail_urls,
             "description": description,
         })
 
