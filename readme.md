@@ -31,18 +31,24 @@ Running the project this way will use the [dummy camera module](#the-dummy-camer
 # Setting up the application on a Raspberry PI
 Running the application on the Raspberry PI can be done in many ways. One of the ways is described below:
 ## Installing the OS
-It is recommended to use the operating system "Raspberry Pi OS with desktop" which can be found [here](https://www.raspberrypi.org/software/operating-systems/). This can be written to an sd-card by using the Raspberry PI Imager or the [balena etcher](https://www.balena.io/etcher/). The "Raspberry Pi OS with desktop" should come with both python and node installed.
+It is recommended to use the operating system "Raspberry Pi OS with desktop" which can be found [here](https://www.raspberrypi.org/software/operating-systems/). This can be written to an sd-card by using the Raspberry PI Imager or the [balena etcher](https://www.balena.io/etcher/). The "Raspberry Pi OS with desktop" should come with python installed.
 ## Setting up the Raspberry PI
 When having a keyboard, mouse and monitor, this should not be a problem. If not, check out [this page about connecting to the RPI in headless mode](https://www.raspberrypi.org/documentation/remote-access/README.md) and possibly [this page about connecting the RPI to wifi in headless mode](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md).
 ## Running the appliction on Raspberry PI
-To run the application on the Raspberry pi, do:
+The current way to run the application on the Raspberry PI is to do:
 ```
 git clone https://github.com/SimenHolmestad/CameraHub.git
 cd CameraHub
-pip3 install -r requirements.txt
+pip3 install -r python-requirements.txt
+sudo apt-get install nodejs npm
 python3 run_app.py --camera_module <name_of_module>
 ```
 Where `<name_of_module>` is one of the modules in [the camera modules section](#camera-modules).
+
+This is working, but is definitely not an optimal solution for performance as `npm start` now runs as a subprocess together with flask. Building the react files using `npm run build` and have flask serve them would have been better for performance, but would also probably require more setup steps and configuration file changes.
+
+One of the goals for CameraHub is that it should be easy to set up, but that does not mean that performance should be totally neglected. Finding a better way to deploy the project on the Raspberry PI (which does not require too many steps) should be a priority in the future.
+
 # Folder structure
 The CameraHub project does not use a database and instead relies on just using folders. This is done so that it is not necessary keep a database in sync with the folder structure, thus making it easier to move image folders back and forth (which is necessary because of limited storage space on the Raspberry PI). While this is not good performance-wise, CameraHub is not meant to scale anyway, so it is completely fine.
 
