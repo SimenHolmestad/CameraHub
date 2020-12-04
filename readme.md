@@ -47,7 +47,7 @@ Where `<name_of_module>` is one of the modules in [the camera modules section](#
 
 This is working, but is definitely not an optimal solution for performance as `npm start` now runs as a subprocess together with flask. Building the react files using `npm run build` and have flask serve them would have been better for performance, but would also probably require more setup steps and configuration file changes.
 
-One of the goals for CameraHub is that it should be easy to set up, but that does not mean that performance should be totally neglected. Finding a better way to deploy the project on the Raspberry PI (which does not require too many steps) should be a priority in the future.
+One of the goals for CameraHub is that it should be easy to set up, but that does not mean performance should be totally neglected. Finding a better way to deploy the project on the Raspberry PI (which does not require too many steps) should be a priority in the future.
 
 # Folder structure
 The CameraHub project does not use a database and instead relies on just using folders. This is done so that it is not necessary keep a database in sync with the folder structure, thus making it easier to move image folders back and forth (which is necessary because of limited storage space on the Raspberry PI). While this is not good performance-wise, CameraHub is not meant to scale anyway, so it is completely fine.

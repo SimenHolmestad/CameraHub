@@ -16,6 +16,12 @@ const useStyles = makeStyles((theme) => ({
   icon: {
     marginRight: theme.spacing(1),
   },
+  emptyAlbumContainer: {
+    width: "450px",
+  },
+  emptyAlbumText: {
+    fontWeight: "200"
+  },
   heroContent: {
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(8, 0, 6),
@@ -26,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
   cardGrid: {
     paddingTop: theme.spacing(8),
     paddingBottom: theme.spacing(8),
+    minHeight: "55vh"
   },
   card: {
     height: '100%',
@@ -66,26 +73,39 @@ function AlbumPage(props) {
 
   let cardGrid = null
   if (imageUrls) {
-    cardGrid = (
-      <Grid container spacing={4}>
-      { imageUrls.map((url) => (
-        <Grid item key={url} xs={12} sm={6} md={4}>
-          <Card className={classes.card}>
-            <CardMedia
-              className={classes.cardMedia}
-              image={url}
-              title="No description provided"
-            />
-            <CardActions>
-              <Button size="small" color="primary">
-                View in full size
-              </Button>
-            </CardActions>
-          </Card>
+    if (imageUrls.length == 0){
+      cardGrid = (
+        <Container className={classes.emptyAlbumContainer}>
+          <Typography variant="h3" className={classes.emptyAlbumText} align="center" color="textSecondary" gutterBottom>
+            Album is empty :(
+          </Typography>
+          <Typography variant="h5" className={classes.emptyAlbumText} align="center" color="textSecondary" paragraph>
+            There are currently no images in this album. Add an image by pushing the blue button above!
+          </Typography>
+        </Container>
+      )
+    } else {
+      cardGrid = (
+        <Grid container spacing={4}>
+          { imageUrls.map((url) => (
+            <Grid item key={url} xs={12} sm={6} md={4}>
+              <Card className={classes.card}>
+                <CardMedia
+                  className={classes.cardMedia}
+                  image={url}
+                  title="No description provided"
+                />
+                <CardActions>
+                  <Button size="small" color="primary">
+                    View in full size
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+            ))}
         </Grid>
-      ))}
-      </Grid>
-    )
+      )
+    }
   } else {
     cardGrid = (
       <Grid container spacing={2} justify="center">

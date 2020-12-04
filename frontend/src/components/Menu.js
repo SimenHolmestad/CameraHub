@@ -22,7 +22,8 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(8, 0, 6),
   },
   albumCardContainer: {
-    paddingBottom: "20px"
+    paddingBottom: "20px",
+    minHeight: "50vh"
   },
   card: {
     height: '100%',
@@ -51,7 +52,6 @@ function Menu() {
     albumList = <CircularProgress/>;
   } else {
     albumList = albumNames.map((albumName) => (
-
       <Link key={albumName} to={ "/album/" + albumName } className={classes.albumLink}>
         <Card className={classes.card}>
           <Typography variant="h3" align="center" color="textPrimary" className={classes.albumLinkText} paragraph>
