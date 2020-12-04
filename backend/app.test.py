@@ -4,6 +4,7 @@ import tempfile
 import os
 import json
 from camera_modules.dummy_camera_module import DummyCameraModule
+import utils.thumbnail_utils as thumbnail_utils
 
 
 class AppTestCase(unittest.TestCase):
@@ -18,7 +19,7 @@ class AppTestCase(unittest.TestCase):
         self.camera_module = DummyCameraModule(
             self.album_dir_path,
             number_of_circles=10)
-        self.app = create_app(self.static_dir_name, self.album_dir_path, self.camera_module)
+        self.app = create_app(self.static_dir_name, self.static_dir_name, self.camera_module)
 
     def tearDown(self):
         self.static_dir.cleanup()
@@ -32,6 +33,11 @@ class AppTestCase(unittest.TestCase):
         os.makedirs(os.path.join(
             album_directory_path,
             "images"
+        ))
+
+        os.makedirs(os.path.join(
+            album_directory_path,
+            "thumbnails"
         ))
 
         if description != "":
@@ -106,6 +112,7 @@ class AppTestCase(unittest.TestCase):
         album_content = os.listdir(os.path.join(self.album_dir_path, "album1"))
         self.assertIn("description.txt", album_content)
         self.assertIn("images", album_content)
+        self.assertIn("thumbnails", album_content)
 
         # Check that the description is correct
         description_file_path = os.path.join(
@@ -321,6 +328,70 @@ class AppTestCase(unittest.TestCase):
         self.assertIn("image_url", content)
         expected_url = "/{}/albums/album1/images/image0001.png".format(self.static_dir_name)
         self.assertEqual(content["image_url"], expected_url)
+
+    def test_get_thumbnail_path_from_album_image_path(self):
+        test_path = os.path.join(
+            "static",
+            "albums",
+            "album_name",
+            "images",
+            "image1.png"
+        )
+        output = thumbnail_utils.get_thumbnail_path_from_album_image_path(test_path)
+        expected_output = os.path.join(
+            "static",
+            "albums",
+            "album_name",
+            "thumbnails",
+            "image1.jpg"
+        )
+        self.assertEqual(output, expected_output)
+
+    def test_create_thumbnail_from_album_image(self):
+        self.create_temp_album("album1", description="This is a very nice album")
+        self.camera_module.try_capture_image("album1")  # Should create image 1
+
+        path_to_image1 = os.path.join(
+            self.album_dir_path,
+            "album1",
+            "images",
+            "image0001.png"
+        )
+        expected_path_to_thumbnail1 = os.path.join(
+            self.album_dir_path,
+            "album1",
+            "thumbnails",
+            "image0001.jpg"
+        )
+        thumbnail_utils.create_thumbnail_from_album_image(path_to_image1)
+        self.assertTrue(os.path.exists(expected_path_to_thumbnail1))
+
+    def test_create_thumbnail_for_all_albums(self):
+        self.create_temp_album("album1", description="This is a very nice album")
+        self.create_temp_album("album2", description="This is also a very nice album")
+        self.camera_module.try_capture_image("album1")
+        self.camera_module.try_capture_image("album1")
+        self.camera_module.try_capture_image("album2")
+
+        thumbnail_utils.create_thumbnails_for_all_albums(self.album_dir_path)
+        thumbnail_path_album1 = os.path.join(
+            self.album_dir_path,
+            "album1",
+            "thumbnails"
+        )
+        thumbnails_for_album1 = os.listdir(thumbnail_path_album1)
+        self.assertEqual(len(thumbnails_for_album1), 2)
+        self.assertIn("image0001.jpg", thumbnails_for_album1)
+        self.assertIn("image0002.jpg", thumbnails_for_album1)
+
+        thumbnail_path_album2 = os.path.join(
+            self.album_dir_path,
+            "album2",
+            "thumbnails"
+        )
+        thumbnails_for_album2 = os.listdir(thumbnail_path_album2)
+        self.assertEqual(len(thumbnails_for_album2), 1)
+        self.assertIn("image0001.jpg", thumbnails_for_album2)
 
 
 if __name__ == '__main__':

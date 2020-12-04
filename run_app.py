@@ -8,6 +8,7 @@ import json
 from backend.app import create_app
 from backend.camera_modules.dummy_camera_module import DummyCameraModule
 from backend.camera_modules.rpicam_module import RPICameraModule
+from backend.utils.thumbnail_utils import create_thumbnails_for_all_albums
 
 STATIC_FOLDER_NAME = "static"
 STATIC_FOLDER_PATH = os.path.join("backend", STATIC_FOLDER_NAME)
@@ -147,7 +148,7 @@ def run_application(camera_module):
     browser_process = open_webpage_in_device_browser(start_page_qr_code_url)
 
     # Run app
-    app = create_app(STATIC_FOLDER_NAME, ALBUM_DIR_PATH, camera_module)
+    app = create_app(STATIC_FOLDER_NAME, STATIC_FOLDER_PATH, camera_module)
     app.run(debug=args.debug, host=host_ip)
 
     # Delete browser process if it was created
@@ -167,7 +168,7 @@ def run_backend_in_debug_mode(camera_module):
     generate_and_save_qr_codes(STATIC_FOLDER_PATH, start_page_url)
 
     # Run app
-    app = create_app(STATIC_FOLDER_NAME, ALBUM_DIR_PATH, camera_module)
+    app = create_app(STATIC_FOLDER_NAME, STATIC_FOLDER_PATH, camera_module)
     app.run(debug=True, host="localhost")
 
 
@@ -184,6 +185,9 @@ if __name__ == '__main__':
     # Create album directory if it does not exist
     if not os.path.exists(ALBUM_DIR_PATH):
         os.makedirs(ALBUM_DIR_PATH)
+
+    print("Creating thumbnails for albums")
+    create_thumbnails_for_all_albums(ALBUM_DIR_PATH)
 
     # Initialize camera module based on input args
     camera_module = CAMERA_MODULE_OPTIONS[args.camera_module](ALBUM_DIR_PATH)

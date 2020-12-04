@@ -1,8 +1,10 @@
 import os
 from flask import Flask, request, url_for, jsonify
+from utils.thumbnail_utils import create_thumbnail_from_album_image
 
 
-def create_app(static_folder_name, album_dir_path, camera_module):
+def create_app(static_folder_name, static_folder_path, camera_module):
+    album_dir_path = os.path.join(static_folder_path, "albums")
     app = Flask(__name__, static_folder=static_folder_name)
 
     @app.route("/albums/", methods=["GET", "POST"])
@@ -31,6 +33,8 @@ def create_app(static_folder_name, album_dir_path, camera_module):
                 os.makedirs(path_to_album)
                 album_images_path = os.path.join(path_to_album, "images")
                 os.makedirs(album_images_path)
+                album_thumbnails_path = os.path.join(path_to_album, "thumbnails")
+                os.makedirs(album_thumbnails_path)
 
             # Update album description if <param:description> is given.
             if "description" in request.json:
@@ -75,6 +79,12 @@ def create_app(static_folder_name, album_dir_path, camera_module):
                 static_image_path = camera_module.try_capture_image(album_name)
             except IOError as error:
                 return jsonify({"error": str(error)})
+
+            image_path = os.path.join(
+                static_folder_path,
+                static_image_path
+            )
+            create_thumbnail_from_album_image(image_path)
 
             image_url = url_for(
                 "static",
