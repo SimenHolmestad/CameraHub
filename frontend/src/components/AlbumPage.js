@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
 
 function AlbumPage(props) {
   const albumName = props.match.params.albumName;
-  const [imageUrls, setImageUrls] = useState(null);
+  const [thumbnailUrls, setThumbnailUrls] = useState(null);
   const [albumDescription, setAlbumDescription] = React.useState("");
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
 
@@ -57,12 +57,12 @@ function AlbumPage(props) {
   // Update the album data from server every 5 seconds
   useEffect(() => {
     get_album_info(albumName).then((data) => {
-      setImageUrls(data.image_urls);
+      setThumbnailUrls(data.thumbnail_urls);
       setAlbumDescription(data.description);
     });
     const interval = setInterval(() => {
       get_album_info(albumName).then((data) => {
-        setImageUrls(data.image_urls);
+        setThumbnailUrls(data.thumbnail_urls);
         setAlbumDescription(data.description);
       });
     }, 5000);
@@ -72,8 +72,8 @@ function AlbumPage(props) {
   const classes = useStyles();
 
   let cardGrid = null
-  if (imageUrls) {
-    if (imageUrls.length == 0){
+  if (thumbnailUrls) {
+    if (thumbnailUrls.length === 0){
       cardGrid = (
         <Container className={classes.emptyAlbumContainer}>
           <Typography variant="h3" className={classes.emptyAlbumText} align="center" color="textSecondary" gutterBottom>
@@ -87,7 +87,7 @@ function AlbumPage(props) {
     } else {
       cardGrid = (
         <Grid container spacing={4}>
-          { imageUrls.map((url) => (
+          { thumbnailUrls.map((url) => (
             <Grid item key={url} xs={12} sm={6} md={4}>
               <Card className={classes.card}>
                 <CardMedia
@@ -118,7 +118,7 @@ function AlbumPage(props) {
     e.preventDefault();
     setIsCapturingImage(true)
     const response = await capture_image_to_album(albumName)
-    setImageUrls([response.image_url, ...imageUrls])
+    setThumbnailUrls([response.thumbnail_url, ...thumbnailUrls])
     setIsCapturingImage(false)
   }
 
