@@ -1,10 +1,10 @@
 import unittest
-from app import create_app
+from .app import create_app
 import tempfile
 import os
 import json
-from camera_modules.dummy_camera_module import DummyCameraModule
-import utils.thumbnail_utils as thumbnail_utils
+from .camera_modules.dummy_camera_module import DummyCameraModule
+from .utils import thumbnail_utils as thumbnail_utils
 
 
 class AppTestCase(unittest.TestCase):

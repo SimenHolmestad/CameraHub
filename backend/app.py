@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, url_for, jsonify
-from utils.thumbnail_utils import create_thumbnail_from_album_image
+from .utils.thumbnail_utils import create_thumbnail_from_album_image
 
 
 def create_app(static_folder_name, static_folder_path, camera_module):
@@ -124,7 +124,7 @@ def create_app(static_folder_name, static_folder_path, camera_module):
             ), image_names
         ))
 
-        # We assume all images hava a valid thumbnail.
+        # We assume all images have a valid thumbnail.
         thumbnail_urls = list(map(
             lambda image_name: url_for(
                 "static",
