@@ -14,8 +14,8 @@ STATIC_FOLDER_NAME = "static"
 STATIC_FOLDER_PATH = os.path.join("backend", STATIC_FOLDER_NAME)
 ALBUM_DIR_PATH = os.path.join(STATIC_FOLDER_PATH, "albums")
 
-CAMERA_MODULE_OPTIONS = {"dummy_module": DummyCameraModule,
-                         "rpicam_module": RPICameraModule}
+CAMERA_MODULE_OPTIONS = {"dummy": DummyCameraModule,
+                         "rpicam": RPICameraModule}
 
 
 def find_ip_address_for_device():

@@ -34,13 +34,17 @@ Running the application on the Raspberry PI can be done in many ways. One of the
 It is recommended to use the operating system "Raspberry Pi OS with desktop" which can be found [here](https://www.raspberrypi.org/software/operating-systems/). This can be written to an sd-card by using the Raspberry PI Imager or the [balena etcher](https://www.balena.io/etcher/). The "Raspberry Pi OS with desktop" should come with python installed.
 ## Setting up the Raspberry PI
 When having a keyboard, mouse and monitor, this should not be a problem. If not, check out [this page about connecting to the RPI in headless mode](https://www.raspberrypi.org/documentation/remote-access/README.md) and possibly [this page about connecting the RPI to wifi in headless mode](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md).
+
+Also, make sure that node and npm are installed by doing:
+```
+sudo apt-get install nodejs npm
+```
 ## Running the appliction on Raspberry PI
 The current way to run the application on the Raspberry PI is to do:
 ```
 git clone https://github.com/SimenHolmestad/CameraHub.git
 cd CameraHub
 pip3 install -r python-requirements.txt
-sudo apt-get install nodejs npm
 python3 run_app.py --camera_module <name_of_module>
 ```
 Where `<name_of_module>` is one of the modules in [the camera modules section](#camera-modules).
