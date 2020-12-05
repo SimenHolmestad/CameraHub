@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function AlbumOverview({ albumData, setAlbumData }) {
+function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
   const classes = useStyles();
   const thumbnailUrls = albumData.thumbnail_urls
@@ -69,7 +69,7 @@ function AlbumOverview({ albumData, setAlbumData }) {
   } else {
     cardGrid = (
       <Grid container spacing={4}>
-        { thumbnailUrls.map((url) => (
+        { thumbnailUrls.map((url, index) => (
           <Grid item key={url} xs={12} sm={6} md={4}>
             <Card className={classes.card}>
               <CardMedia
@@ -78,7 +78,7 @@ function AlbumOverview({ albumData, setAlbumData }) {
                 title="No description provided"
               />
               <CardActions>
-                <Button size="small" color="primary">
+                <Button onClick={() => (setImageIndex(thumbnailUrls.length - index))}size="small" color="primary">
                   View in full size
                 </Button>
               </CardActions>
