@@ -118,7 +118,7 @@ def run_frontend(host_ip):
     os.chdir("frontend")
     if not os.path.exists("node_modules"):
         print("Installing react dependencies")
-        subprocess.run("npm install")
+        subprocess.run("npm install", shell=True)
 
     npm_process = subprocess.Popen("BROWSER=none npm start", shell=True)
     os.chdir("./..")
