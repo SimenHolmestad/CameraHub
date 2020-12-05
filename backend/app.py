@@ -1,8 +1,10 @@
 import os
 from flask import Flask, request, url_for, jsonify
+from .utils.thumbnail_utils import create_thumbnail_from_album_image
 
 
-def create_app(static_folder_name, album_dir_path, camera_module):
+def create_app(static_folder_name, static_folder_path, camera_module):
+    album_dir_path = os.path.join(static_folder_path, "albums")
     app = Flask(__name__, static_folder=static_folder_name)
 
     @app.route("/albums/", methods=["GET", "POST"])
@@ -31,6 +33,8 @@ def create_app(static_folder_name, album_dir_path, camera_module):
                 os.makedirs(path_to_album)
                 album_images_path = os.path.join(path_to_album, "images")
                 os.makedirs(album_images_path)
+                album_thumbnails_path = os.path.join(path_to_album, "thumbnails")
+                os.makedirs(album_thumbnails_path)
 
             # Update album description if <param:description> is given.
             if "description" in request.json:
@@ -76,14 +80,28 @@ def create_app(static_folder_name, album_dir_path, camera_module):
             except IOError as error:
                 return jsonify({"error": str(error)})
 
+            image_path = os.path.join(
+                static_folder_path,
+                static_image_path
+            )
+            thumbnail_name = create_thumbnail_from_album_image(image_path)
+
             image_url = url_for(
                 "static",
                 filename=static_image_path
             )
+            thumbnail_url = url_for(
+                "static",
+                filename="albums/{}/thumbnails/{}".format(
+                    album_name,
+                    thumbnail_name
+                )
+            )
 
             return jsonify({
                 "success": "Image successfully captured",
-                "image_url": image_url
+                "image_url": image_url,
+                "thumbnail_url": thumbnail_url
             })
 
         description = ""
@@ -100,15 +118,27 @@ def create_app(static_folder_name, album_dir_path, camera_module):
 
         image_names.sort(reverse=True)
         image_urls = list(map(
-            lambda image: url_for(
+            lambda image_name: url_for(
                 "static",
-                filename="albums/{}/images/{}".format(album_name, image)
+                filename="albums/{}/images/{}".format(album_name, image_name)
+            ), image_names
+        ))
+
+        # We assume all images have a valid thumbnail.
+        thumbnail_urls = list(map(
+            lambda image_name: url_for(
+                "static",
+                filename="albums/{}/thumbnails/{}".format(
+                    album_name,
+                    image_name.split(".")[0] + ".jpg"
+                )
             ), image_names
         ))
 
         return jsonify({
             "album_name": album_name,
             "image_urls": image_urls,
+            "thumbnail_urls": thumbnail_urls,
             "description": description,
         })
 

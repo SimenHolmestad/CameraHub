@@ -121,6 +121,12 @@ The QR code will be saved with the file path `albums/.qr-codes/wifi_qr_code.png`
 
 Doing this might be a security risk, but storing your wifi password in a QR code is probably a security risk anyway.
 
+# Running the tests
+Currently, only the backend is tested. To run the tests, go to the top directory and do:
+```
+python3 -m backend.test_backend
+```
+
 # Useful links for further development
 - https://flask.palletsprojects.com/en/1.1.x/quickstart/
 - https://flask.palletsprojects.com/en/1.1.x/tutorial/#tutorial
