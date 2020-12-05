@@ -7,6 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Grid from '@material-ui/core/Grid';
 
 const useAlbumNames = () => {
   const [albumNames, setAlbumNames] = useState(null);
@@ -39,6 +40,10 @@ const useStyles = makeStyles((theme) => ({
   },
   albumLinkText: {
     fontWeight: '200'
+  },
+  loadingGrid: {
+    paddingTop: "30px",
+    paddingBottom: "10px",
   }
 }));
 
@@ -49,7 +54,11 @@ function Menu() {
 
   let albumList = null
   if (!albumNames) {
-    albumList = <CircularProgress/>;
+    albumList = (
+      <Grid container className={classes.loadingGrid} spacing={2} justify="center">
+        <CircularProgress/>
+      </Grid>
+    )
   } else {
     albumList = albumNames.map((albumName) => (
       <Link key={albumName} to={ "/album/" + albumName } className={classes.albumLink}>
