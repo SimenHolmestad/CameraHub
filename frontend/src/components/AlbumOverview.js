@@ -96,8 +96,8 @@ function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
     setAlbumData({
       album_name: albumName,
       description: albumDescription,
-      thumbnail_urls: [response.thumbnailUrls, ...thumbnailUrls],
-      image_urls: [response.imageUrls, ...imageUrls],
+      thumbnail_urls: [response.thumbnail_url, ...thumbnailUrls],
+      image_urls: [response.image_url, ...imageUrls],
     })
     setIsCapturingImage(false)
   }
