@@ -15,9 +15,6 @@ const useStyles = makeStyles((theme) => ({
   icon: {
     marginRight: theme.spacing(1),
   },
-  emptyAlbumContainer: {
-    width: "450px",
-  },
   emptyAlbumText: {
     fontWeight: "200"
   },
@@ -57,15 +54,15 @@ function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
   let cardGrid = null
   if (thumbnailUrls.length === 0) {
     cardGrid = (
-      <Container className={classes.emptyAlbumContainer}>
+      <Container justify="center" maxWidth="sm">
         <Typography variant="h3" className={classes.emptyAlbumText} align="center" color="textSecondary" gutterBottom>
-          Album is empty :(
+          No images :(
         </Typography>
         <Typography variant="h5" className={classes.emptyAlbumText} align="center" color="textSecondary" paragraph>
           There are currently no images in this album. Add an image by pushing the blue button above!
         </Typography>
       </Container>
-          )
+    )
   } else {
     cardGrid = (
       <Grid container spacing={4}>
