@@ -177,9 +177,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true")
     parser.add_argument("-c", "--camera_module",
-                        help="The camera module to use. Defaults to \"dummy module\"",
+                        help="The camera module to use. Defaults to \"dummy\"",
                         choices=CAMERA_MODULE_OPTIONS.keys(),
-                        default="dummy_module")
+                        default="dummy")
     args = parser.parse_args()
 
     # Create album directory if it does not exist
