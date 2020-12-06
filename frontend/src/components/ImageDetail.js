@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import ArrowBack from '@material-ui/icons/ArrowBack';
 import ArrowForward from '@material-ui/icons/ArrowForward';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
@@ -18,13 +19,12 @@ const useStyles = makeStyles((theme) => ({
   image: {
     width: "100%"
   },
-  backLinkGrid: {
-    paddingTop: "20px",
-    paddingBottom: "20px",
-  },
   imageContainer: {
     maxWidth: "1100px",
     padding: theme.spacing(0, 0, 0),
+  },
+  backToAlbumButton: {
+    marginTop: "4px"
   },
 }));
 
@@ -81,13 +81,11 @@ function ImageDetail({imageUrls, imageIndex, setImageIndex, albumName}) {
 
   return (
     <>
-      <Grid container className={classes.backLinkGrid} spacing={2} justify="center">
-        <Button component={Link} to={"/album/" + albumName}>
-          <ArrowBack className={classes.leftIcon} />
+      <Container className={classes.imageContainer}>
+        <Button component={Link} to={"/album/" + albumName} className={classes.backToAlbumButton}>
+          <KeyboardArrowLeft />
           Back to album
         </Button>
-      </Grid>
-      <Container className={classes.imageContainer}>
         <img className={classes.image}
              onLoad={doneLoading}
              src={imageUrls[imageUrls.length - imageIndex]}
