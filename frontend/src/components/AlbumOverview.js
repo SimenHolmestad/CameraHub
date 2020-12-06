@@ -10,6 +10,7 @@ import CameraIcon from '@material-ui/icons/PhotoCamera';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -75,7 +76,12 @@ function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
                 title="No description provided"
               />
               <CardActions>
-                <Button onClick={() => (setImageIndex(thumbnailUrls.length - index))}size="small" color="primary">
+                <Button
+                  component={Link}
+                  to={"/album/" + albumName + "/detail"}
+                  onClick={() => (setImageIndex(thumbnailUrls.length - index))}
+                  size="small"
+                  color="primary">
                   View in full size
                 </Button>
               </CardActions>

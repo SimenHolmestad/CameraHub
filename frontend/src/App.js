@@ -51,7 +51,7 @@ function App() {
         </AppBar>
         {/* content */}
         <Switch>
-          <Route exact path='/album/:albumName' component={ AlbumPage }/>
+          <Route path='/album/:albumName' component={ AlbumPage }/>
           <Route exact path='/' component={ Menu }/>
         </Switch>
         {/* Footer */}

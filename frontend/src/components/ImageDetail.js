@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   leftIcon: {
@@ -27,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ImageDetail({imageUrls, imageIndex, setImageIndex}) {
+function ImageDetail({imageUrls, imageIndex, setImageIndex, albumName}) {
   const classes = useStyles();
   const [leftIsLoading, setLeftIsLoading] = React.useState(false);
   const [rightIsLoading, setRightIsLoading] = React.useState(false);
@@ -81,7 +82,7 @@ function ImageDetail({imageUrls, imageIndex, setImageIndex}) {
   return (
     <>
       <Grid container className={classes.backLinkGrid} spacing={2} justify="center">
-        <Button onClick={() => (setImageIndex(-1))}>
+        <Button component={Link} to={"/album/" + albumName}>
           <ArrowBack className={classes.leftIcon} />
           Back to album
         </Button>

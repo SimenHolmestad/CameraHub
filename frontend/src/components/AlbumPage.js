@@ -5,6 +5,7 @@ import ImageDetail from './ImageDetail'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import { Route, Switch } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
   loadingGrid: {
@@ -16,7 +17,7 @@ const useStyles = makeStyles(() => ({
 function AlbumPage(props) {
   const albumName = props.match.params.albumName;
   const [albumData, setAlbumData] = useState(null);
-  const [imageIndex, setImageIndex] = React.useState(-1);
+  const [imageIndex, setImageIndex] = React.useState(1);
   const classes = useStyles();
 
   // Update the album data from server every 5 seconds
@@ -40,20 +41,27 @@ function AlbumPage(props) {
     )
   }
 
-  if (imageIndex > -1) {
-    console.log(albumData);
-    return <ImageDetail
-             imageUrls={albumData.image_urls}
-             imageIndex={imageIndex}
-             setImageIndex={setImageIndex}/>
-  }
+  const imageDetail = () => (
+    <ImageDetail
+      imageUrls={albumData.image_urls}
+      imageIndex={imageIndex}
+      setImageIndex={setImageIndex}
+      albumName={albumName}/>
+  )
 
-  return (
+  const albumOverview = () => (
     <AlbumOverview
       albumData={albumData}
       setAlbumData={setAlbumData}
       setImageIndex={setImageIndex}/>
   );
+
+  return (
+    <Switch>
+      <Route exact path={`${props.match.url}/detail`} render={imageDetail} />
+      <Route path={`${props.match.url}`} render={albumOverview} />
+    </Switch>
+  )
 }
 
 export default AlbumPage
