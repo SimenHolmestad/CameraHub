@@ -132,6 +132,11 @@ class BaseCameraModule(ABC):
         self.write_current_image_number_file(album_name, current_image_number)
         return current_image_number
 
+    def get_current_image_name(self, album_name):
+        """Returns the name of the last image added to the album."""
+        current_image_number = self.find_current_image_number(album_name)
+        return self.image_name_prefix + str(current_image_number).rjust(4, "0") + self.file_extension
+
     def write_current_image_number_file(self, album_name, current_image_number):
         """Write the parameter "current_image_number" to the file
         ".current_image_number.txt" in the corresponding album.

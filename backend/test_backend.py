@@ -300,6 +300,20 @@ class AppTestCase(unittest.TestCase):
         self.create_current_image_number_file("album1", 42)
         self.assertEqual(self.camera_module.find_current_image_number("album1"), 3)
 
+    def test_last_image_for_album(self):
+        self.create_temp_album("album1")
+        self.add_dummy_image_file_to_album("album1", "image0001.png")
+        self.add_dummy_image_file_to_album("album1", "image0002.png")
+        self.add_dummy_image_file_to_album("album1", "image0003.png")
+
+        test_client = self.app.test_client()
+        response = test_client.get("/albums/album1/last_image")
+        content = response.json
+
+        self.assertIn("last_image_url", content)
+        expected_url = "/{}/albums/album1/images/image0003.png".format(self.static_dir_name)
+        self.assertEqual(content["last_image_url"], expected_url)
+
     def test_camera_module_try_capture_image(self):
         self.create_temp_album("album1")
         self.add_dummy_image_file_to_album("album1", "image0001.png")

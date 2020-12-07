@@ -142,4 +142,18 @@ def create_app(static_folder_name, static_folder_path, camera_module):
             "description": description,
         })
 
+    @app.route("/albums/<album_name>/last_image", methods=["GET"])
+    def last_image_for_album(album_name):
+        """Returns the url of the last image captured to an album"""
+
+        album_images_path = os.path.join(album_dir_path, album_name, "images")
+        if not os.path.exists(album_images_path):
+            error_message = "No album with the name \"{}\" exists".format(album_name)
+            return jsonify({"error": error_message})
+        image_name = camera_module.get_current_image_name(album_name)
+        image_path = "albums/{}/images/{}".format(album_name, image_name)
+        return jsonify({
+            "last_image_url": url_for("static", filename=image_path)
+        })
+
     return app
