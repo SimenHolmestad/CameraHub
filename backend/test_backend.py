@@ -56,15 +56,15 @@ class AppTestCase(unittest.TestCase):
         )
         open(path_to_image_file, 'a').close()
 
-    def create_next_image_number_file(self, album_name, next_image_number):
-        next_image_number_file_path = os.path.join(
+    def create_current_image_number_file(self, album_name, current_image_number):
+        current_image_number_file_path = os.path.join(
             self.album_dir_path,
             album_name,
-            ".next_image_number.txt"
+            ".current_image_number.txt"
         )
 
-        f = open(next_image_number_file_path, "w")
-        f.write(str(next_image_number))
+        f = open(current_image_number_file_path, "w")
+        f.write(str(current_image_number))
         f.close()
 
     def test_list_albums(self):
@@ -247,57 +247,65 @@ class AppTestCase(unittest.TestCase):
         expected_thumbnail2_url = "/{}/albums/album1/thumbnails/image2.jpg".format(self.static_dir_name)
         self.assertIn(expected_thumbnail2_url, content["thumbnail_urls"])
 
-    def test_camera_module_write_next_image_number(self):
+    def test_camera_module_write_current_image_number(self):
         self.create_temp_album("album1")
-        self.camera_module.write_next_image_number_file("album1", 4)
-        next_image_number_file_path = os.path.join(
+        self.camera_module.write_current_image_number_file("album1", 4)
+        current_image_number_file_path = os.path.join(
             self.album_dir_path,
             "album1",
-            ".next_image_number.txt"
+            ".current_image_number.txt"
         )
-        f = open(next_image_number_file_path)
-        next_image_number = int(f.read())
+        f = open(current_image_number_file_path)
+        current_image_number = int(f.read())
         f.close()
 
-        self.assertEqual(next_image_number, 4)
+        self.assertEqual(current_image_number, 4)
 
-    def test_camera_module_find_next_image_number(self):
+    def test_camera_module_find_current_image_number(self):
         self.create_temp_album("album1")
-        self.create_next_image_number_file("album1", 3)
-        self.assertEqual(self.camera_module.find_next_image_number("album1"), 3)
+        self.create_current_image_number_file("album1", 3)
+        self.assertEqual(self.camera_module.find_current_image_number("album1"), 0)
 
-    def test_find_next_image_number_empty_dir_and_nonexistent_file(self):
+    def test_find_current_image_number_empty_dir_and_nonexistent_file(self):
         self.create_temp_album("album1")
-        self.assertEqual(self.camera_module.find_next_image_number("album1"), 1)
+        self.assertEqual(self.camera_module.find_current_image_number("album1"), 0)
 
-    def test_find_next_image_number_with_multiple_images_and_nonexistent_file(self):
+    def test_find_current_image_number_with_multiple_images_and_nonexistent_file(self):
         self.create_temp_album("album1")
         self.add_dummy_image_file_to_album("album1", "image0001.png")
         self.add_dummy_image_file_to_album("album1", "image0002.png")
         self.add_dummy_image_file_to_album("album1", "image0003.png")
-        self.assertEqual(self.camera_module.find_next_image_number("album1"), 4)
+        self.assertEqual(self.camera_module.find_current_image_number("album1"), 3)
 
-    def test_find_next_image_number_with_multiple_images_weird_order_and_nonexistent_file(self):
+    def test_find_current_image_number_with_multiple_images_weird_order_and_nonexistent_file(self):
         self.create_temp_album("album1")
         self.add_dummy_image_file_to_album("album1", "image0003.png")
         self.add_dummy_image_file_to_album("album1", "image0005.png")
         self.add_dummy_image_file_to_album("album1", "image0011.png")
-        self.assertEqual(self.camera_module.find_next_image_number("album1"), 12)
+        self.assertEqual(self.camera_module.find_current_image_number("album1"), 11)
 
-    def test_find_next_image_number_with_wrong_file(self):
+    def test_find_current_image_number_with_wrong_file(self):
         self.create_temp_album("album1")
         self.add_dummy_image_file_to_album("album1", "image0001.png")
         self.add_dummy_image_file_to_album("album1", "image0002.png")
         self.add_dummy_image_file_to_album("album1", "image0003.png")
-        self.create_next_image_number_file("album1", 1)
-        self.assertEqual(self.camera_module.find_next_image_number("album1"), 4)
+        self.create_current_image_number_file("album1", 1)
+        self.assertEqual(self.camera_module.find_current_image_number("album1"), 3)
+
+    def test_find_current_image_number_with_nonexisting_current_file(self):
+        self.create_temp_album("album1")
+        self.add_dummy_image_file_to_album("album1", "image0001.png")
+        self.add_dummy_image_file_to_album("album1", "image0002.png")
+        self.add_dummy_image_file_to_album("album1", "image0003.png")
+        self.create_current_image_number_file("album1", 42)
+        self.assertEqual(self.camera_module.find_current_image_number("album1"), 3)
 
     def test_camera_module_try_capture_image(self):
         self.create_temp_album("album1")
         self.add_dummy_image_file_to_album("album1", "image0001.png")
         self.add_dummy_image_file_to_album("album1", "image0002.png")
         self.add_dummy_image_file_to_album("album1", "image0003.png")
-        self.create_next_image_number_file("album1", 4)
+        self.create_current_image_number_file("album1", 4)
 
         static_image_path = self.camera_module.try_capture_image("album1")
         self.assertIn("0004", static_image_path)
@@ -308,16 +316,16 @@ class AppTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(image_path))
 
         # Make sure image number file is updated
-        next_image_number_file_path = os.path.join(
+        current_image_number_file_path = os.path.join(
             self.album_dir_path,
             "album1",
-            ".next_image_number.txt"
+            ".current_image_number.txt"
         )
-        f = open(next_image_number_file_path)
-        next_image_number = int(f.read())
+        f = open(current_image_number_file_path)
+        current_image_number = int(f.read())
         f.close()
 
-        self.assertEqual(next_image_number, 5)
+        self.assertEqual(current_image_number, 4)
 
     def test_capture_image_endpoint(self):
         self.create_temp_album("album1")

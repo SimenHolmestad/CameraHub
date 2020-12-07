@@ -41,7 +41,7 @@ class BaseCameraModule(ABC):
             "images"
         ))
 
-        next_image_number = self.find_next_image_number(album_name)
+        next_image_number = self.find_current_image_number(album_name) + 1
         next_image_name = self.image_name_prefix + str(next_image_number).rjust(4, "0") + self.file_extension
         next_image_path = os.path.join(
             self.album_dir_name,
@@ -51,41 +51,71 @@ class BaseCameraModule(ABC):
         )
 
         self.capture_image(next_image_path)
-        self.write_next_image_number_file(album_name, next_image_number + 1)
+        self.write_current_image_number_file(album_name, next_image_number)
 
         return "albums/{}/images/{}".format(album_name, next_image_name)
 
-    def find_next_image_number(self, album_name):
-        """Find the image number of the next image.
+    def find_current_image_number(self, album_name):
+        """Find the image number of the current image.
 
-        The function reads the content of the file
-        ".next_image_number.txt". If this file does not exist (or the
-        an image file is in risk of getting overwritten), it tries to
-        figure out next image number by reading the file names of the
-        images present in the images folder of the specified album.
+        The function tries to read the content of the file
+        ".current_image_number.txt" and creates it if it does not
+        exist.
+
+        It also makes some checks to the file and reacreates it if one
+        of the following conditions occur:
+        - The current image file does not exist
+        - The next image file does exist (and is about to get overwritten)
 
         """
         path_to_album = os.path.join(self.album_dir_name, album_name)
         path_to_album_images = os.path.join(path_to_album, "images")
-        next_image_number_file_path = os.path.join(
+        current_image_number_file_path = os.path.join(
             path_to_album,
-            ".next_image_number.txt"
+            ".current_image_number.txt"
         )
 
-        if os.path.exists(next_image_number_file_path):
-            f = open(next_image_number_file_path)
-            next_image_number = int(f.read())
-            f.close()
+        # Check if file does not exist
+        if not os.path.exists(current_image_number_file_path):
+            return self.recreate_image_number_file(album_name)
 
-            # Make sure to not overwrite an image if .next_image_number.txt is wrong
-            possible_next_image_filepath = os.path.join(
-                path_to_album_images,
-                self.image_name_prefix + str(next_image_number).rjust(4, "0")
-            )
-            if not (os.path.exists(possible_next_image_filepath + ".png")
-                    or os.path.exists(possible_next_image_filepath + ".jpg")):
-                return next_image_number
+        f = open(current_image_number_file_path)
+        current_image_number = int(f.read())
+        f.close()
 
+        # Check if the current image file exist
+        current_image_filepath = os.path.join(
+            path_to_album_images,
+            self.image_name_prefix + str(current_image_number).rjust(4, "0"),
+            self.file_extension
+        )
+        if not os.path.exists(current_image_filepath):
+            return self.recreate_image_number_file(album_name)
+
+        # Check if the next image file exist
+        possible_next_image_filepath = os.path.join(
+            path_to_album_images,
+            self.image_name_prefix + str(current_image_number + 1).rjust(4, "0")
+        )
+        next_file_exists = (os.path.exists(possible_next_image_filepath + ".png")
+                            or os.path.exists(possible_next_image_filepath + ".jpg"))
+        if next_file_exists:
+            return self.recreate_image_number_file(album_name)
+
+        return current_image_number
+
+    def recreate_image_number_file(self, album_name):
+        """Goes through all files in the images folder of the album and use
+        this information to write the current_image_number file. The next
+        image number is returned from the function.
+
+        This function is handy if the next_image_number file is wrong.
+
+        """
+        path_to_album_images = os.path.join(
+            self.album_dir_name,
+            album_name,
+            "images")
         # Get all images in album on the right format
         p = re.compile("^" + self.image_name_prefix + "\\d\\d\\d\\d$")
         images_in_folder = os.listdir(path_to_album_images)
@@ -93,25 +123,25 @@ class BaseCameraModule(ABC):
         correctly_formatted_images = [s for s in image_names if p.match(s)]
 
         if not correctly_formatted_images:
-            next_image_number = 1
+            current_image_number = 0
         else:
-            # Set next_image_number to the image number of the last element in the list + 1
+            # Set current_image_number to the image number of the last element in the list
             correctly_formatted_images.sort()
-            next_image_number = int(correctly_formatted_images[-1][-4:]) + 1
+            current_image_number = int(correctly_formatted_images[-1][-4:])
 
-        self.write_next_image_number_file(album_name, next_image_number)
-        return next_image_number
+        self.write_current_image_number_file(album_name, current_image_number)
+        return current_image_number
 
-    def write_next_image_number_file(self, album_name, next_image_number):
-        """Write the parameter "next_image_number" to the file
-        ".next_image_number.txt" in the corresponding album.
+    def write_current_image_number_file(self, album_name, current_image_number):
+        """Write the parameter "current_image_number" to the file
+        ".current_image_number.txt" in the corresponding album.
 
         """
-        next_image_number_file_path = os.path.join(
+        current_image_number_file_path = os.path.join(
             self.album_dir_name,
             album_name,
-            ".next_image_number.txt"
+            ".current_image_number.txt"
         )
-        f = open(next_image_number_file_path, "w")
-        f.write(str(next_image_number))
+        f = open(current_image_number_file_path, "w")
+        f.write(str(current_image_number))
         f.close()
