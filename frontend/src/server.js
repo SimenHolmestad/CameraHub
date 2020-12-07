@@ -10,6 +10,12 @@ export const get_album_info = async album_name => {
   return data;
 }
 
+export const get_last_image_url = async album_name => {
+  const response = await fetch('/albums/' + album_name + "/last_image");
+  const data = await response.json();
+  return data;
+}
+
 export const capture_image_to_album = async album_name => {
   const response = await fetch('/albums/' + album_name, { method: 'POST'})
   const data = await response.json();
