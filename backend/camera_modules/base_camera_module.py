@@ -26,6 +26,13 @@ class BaseCameraModule(ABC):
         """
         pass
 
+    def format_image_name(self, image_number, extension=None):
+        """Creates an image name using the class parameters and the image
+        number specified."""
+        if extension is None:
+            extension = self.file_extension
+        return self.image_name_prefix + str(image_number).rjust(4, "0") + extension
+
     def try_capture_image(self, album_name):
         """Try to capture an image using the capture_image method.
 
@@ -42,7 +49,7 @@ class BaseCameraModule(ABC):
         ))
 
         next_image_number = self.find_current_image_number(album_name) + 1
-        next_image_name = self.image_name_prefix + str(next_image_number).rjust(4, "0") + self.file_extension
+        next_image_name = self.format_image_name(next_image_number)
         next_image_path = os.path.join(
             self.album_dir_name,
             album_name,
@@ -86,19 +93,22 @@ class BaseCameraModule(ABC):
         # Check if the current image file exist
         current_image_filepath = os.path.join(
             path_to_album_images,
-            self.image_name_prefix + str(current_image_number).rjust(4, "0"),
-            self.file_extension
+            self.format_image_name(current_image_number)
         )
         if not os.path.exists(current_image_filepath):
             return self.recreate_image_number_file(album_name)
 
         # Check if the next image file exist
-        possible_next_image_filepath = os.path.join(
+        possible_next_image_filepath_jpg = os.path.join(
             path_to_album_images,
-            self.image_name_prefix + str(current_image_number + 1).rjust(4, "0")
+            self.format_image_name(current_image_number + 1, ".jpg")
         )
-        next_file_exists = (os.path.exists(possible_next_image_filepath + ".png")
-                            or os.path.exists(possible_next_image_filepath + ".jpg"))
+        possible_next_image_filepath_png = os.path.join(
+            path_to_album_images,
+            self.format_image_name(current_image_number + 1, ".png")
+        )
+        next_file_exists = (os.path.exists(possible_next_image_filepath_jpg)
+                            or os.path.exists(possible_next_image_filepath_png))
         if next_file_exists:
             return self.recreate_image_number_file(album_name)
 
@@ -135,7 +145,7 @@ class BaseCameraModule(ABC):
     def get_current_image_name(self, album_name):
         """Returns the name of the last image added to the album."""
         current_image_number = self.find_current_image_number(album_name)
-        return self.image_name_prefix + str(current_image_number).rjust(4, "0") + self.file_extension
+        return self.format_image_name(current_image_number)
 
     def write_current_image_number_file(self, album_name, current_image_number):
         """Write the parameter "current_image_number" to the file
