@@ -150,7 +150,13 @@ def create_app(static_folder_name, static_folder_path, camera_module):
         if not os.path.exists(album_images_path):
             error_message = "No album with the name \"{}\" exists".format(album_name)
             return jsonify({"error": error_message})
+
         image_name = camera_module.get_current_image_name(album_name)
+        if not image_name:
+            return jsonify({
+                "error": "album is empty"
+            })
+
         image_path = "albums/{}/images/{}".format(album_name, image_name)
         return jsonify({
             "last_image_url": url_for("static", filename=image_path)

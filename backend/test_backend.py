@@ -314,6 +314,17 @@ class AppTestCase(unittest.TestCase):
         expected_url = "/{}/albums/album1/images/image0003.png".format(self.static_dir_name)
         self.assertEqual(content["last_image_url"], expected_url)
 
+    def test_last_image_for_album_on_empty_album(self):
+        self.create_temp_album("album1")
+
+        test_client = self.app.test_client()
+        response = test_client.get("/albums/album1/last_image")
+        content = response.json
+
+        self.assertNotIn("last_image_url", content)
+        self.assertIn("error", content)
+        self.assertEqual(content["error"], "album is empty")
+
     def test_camera_module_try_capture_image(self):
         self.create_temp_album("album1")
         self.add_dummy_image_file_to_album("album1", "image0001.png")

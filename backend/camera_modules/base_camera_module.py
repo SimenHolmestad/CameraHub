@@ -143,8 +143,11 @@ class BaseCameraModule(ABC):
         return current_image_number
 
     def get_current_image_name(self, album_name):
-        """Returns the name of the last image added to the album."""
+        """Returns the name of the last image added to the album, None if
+        there are no images in the album."""
         current_image_number = self.find_current_image_number(album_name)
+        if current_image_number == 0:
+            return None
         return self.format_image_name(current_image_number)
 
     def write_current_image_number_file(self, album_name, current_image_number):
