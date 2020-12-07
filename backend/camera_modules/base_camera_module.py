@@ -148,6 +148,17 @@ class BaseCameraModule(ABC):
         current_image_number = self.find_current_image_number(album_name)
         if current_image_number == 0:
             return None
+
+        jpg_image_name = self.format_image_name(current_image_number, extension=".jpg")
+        jpg_path = os.path.join(
+            self.album_dir_name,
+            album_name,
+            "images",
+            self.format_image_name(current_image_number, extension=".jpg")
+        )
+        if os.path.exists(jpg_path):
+            return jpg_image_name
+
         return self.format_image_name(current_image_number)
 
     def write_current_image_number_file(self, album_name, current_image_number):
