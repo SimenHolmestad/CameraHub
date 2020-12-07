@@ -16,6 +16,7 @@ const useStyles = makeStyles(() => ({
     right: "0",
     top: "0",
     objectFit: "contain",
+    zoom: 10
   },
   background: {
     position: "fixed",
