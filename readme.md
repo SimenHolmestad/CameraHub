@@ -97,15 +97,19 @@ Try to capture an image with the camera module and add the image to `<album_name
 Returns the url of the last image captured to `<album_name>`. If `<album_name>` does not exist, the error `"No album with the name <album_name> exists"` will be returned. If the album is empty, the error `"album is empty"` is returned.
 
 # Camera modules
-The camera module is the part of the system which handles image capturing. If CameraHub is to function with another type of camera, a new camera module has to be made. It is possible to test a camera module by running
+The camera module is the part of the system which handles image capturing. If CameraHub is to function with another type of camera, a new camera module has to be made. Which camera module to use has to be specified when starting the app, where the different module names available are:
+
+- `dummmy` (default)
+- `rpicam`
+- `dslr_jpg`
+- `dslr_raw`
+- `dslr_raw_transfer`
+
+It is possible to test a camera module without running the app by doing:
 ```
 python3 test_camera_module.py <name_of_module>
 ```
-Where `<name_of_module` can be one of the following:
-- `dummmy_module`
-- `rpicam_module`
-
-This will create a folder named `test_albums` which will contain the image files created.
+Doing this will create a folder named `test_albums` which will contain the image files created.
 
 The current camera modules are:
 ## The dummy camera module
@@ -115,10 +119,47 @@ The module creates white images with randomly colored and positioned circles. Ho
 ## The "Raspberry PI camera module" camera module
 The "Raspberry PI camera module" camera module (`backend/camera_modules/rpicam_module.py`) makes it possible to use CameraHub together with the [Raspberry PI camera module](https://www.raspberrypi.org/documentation/hardware/camera/).
 
-Currently, the module uses the `raspistill` command. For more information about getting started with the RPI camera module, see [the official tutorial](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera).
+Currently, the module uses the `raspistill` command. For more information about getting started with the RPI camera module, see [the official tutorial](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera)
+.
+## The DSLR camera modules
+To use the DSLR camera modules, gphoto2 is needed. The easiest way to install gphoto2 seems to be:
+```
+wget https://raw.githubusercontent.com/gonzalo/gphoto2-updater/master/gphoto2-updater.sh && chmod +x gphoto2-updater.sh && sudo ./gphoto2-updater.sh
+```
+as stated in <https://github.com/gonzalo/gphoto2-updater>.
 
-# Future camera modules
-## The DSLR camera module
+After installing gphoto2 you need to install the gphoto2 python package by doing:
+```
+pip3 install gphoto2
+```
+
+Currently, CameraHub has three different dslr modules with their upsides and downsides. The modules, sorted by speed from fastest to slowest, are as follows:
+- The dslr jpg module
+- The dslr raw module
+- The dlsr raw transfer module
+
+The `dlsr raw transfer module` is the best choice (if you want raw images) but also uses the most time.
+
+**NOTE**: The Camera modules are currently created to work with Canon cameras. If you want to use cameras of other types, some rewriting must be done.
+### The dslr jpg module
+If you do not want to keep the raw images from the camera, this is definitely the best option as it is the fastest (a little below 2 seconds per image capture on a Canon EOS 6D)
+
+Be carefaul however: Your camera needs to be set to save .jpg images (and .jpg images only!) for this to work.
+
+### The dslr raw module
+With the dslr raw module, the raw image is kept on the SD card of the camera while the .jpg image is transferred to the Raspberry PI.
+
+When testing on my Canon EOS 6D, this module used around 4 seconds per image capture.
+
+Note: When using the raw modules, the dslr must be set to save the images as *both* .jpg and raw.
+
+### The dlsr raw transfer module
+With the dlsr raw transfer module, both the raw images and the .jpg images are transferred from the camera to the Raspberry PI.
+
+When testing on my Canon EOS 6D, the dslr raw transfer module used between 5 and 6 seconds per image capture.
+
+The reason you want your raw images transferred to the Raspberry PI is that the images will be sorted by album. This will not be the case for the dslr raw module.
+
 # Creating a new camera module
 Most of the basic camera module functionality is implemented in `backend/camera_modules/base_camera_module.py`, so creating a new one should not be that difficult – just create a class which inherits from `BaseCameraModule` and implements the `capture_image`-method.
 
