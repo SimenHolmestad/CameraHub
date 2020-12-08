@@ -122,7 +122,7 @@ The "Raspberry PI camera module" camera module (`backend/camera_modules/rpicam_m
 Currently, the module uses the `raspistill` command. For more information about getting started with the RPI camera module, see [the official tutorial](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera)
 .
 ## The DSLR camera modules
-To use the DSLR camera modules, gphoto2 is needed. The easiest way to install gphoto2 seems to be:
+To use the DSLR camera modules, gphoto2 is needed. The easiest way to install gphoto2 for Raspberry PI seems to be:
 ```
 wget https://raw.githubusercontent.com/gonzalo/gphoto2-updater/master/gphoto2-updater.sh && chmod +x gphoto2-updater.sh && sudo ./gphoto2-updater.sh
 ```

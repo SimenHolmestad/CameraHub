@@ -8,20 +8,26 @@ import json
 from backend.app import create_app
 from backend.camera_modules.dummy_camera_module import DummyCameraModule
 from backend.camera_modules.rpicam_module import RPICameraModule
-from backend.camera_modules.dslr_jpg_module import DSLRJpgModule
-from backend.camera_modules.dslr_raw_module import DSLRRawModule
-from backend.camera_modules.dslr_raw_transfer_module import DSLRRawTransferModule
 from backend.utils.thumbnail_utils import create_thumbnails_for_all_albums
+
+CAMERA_MODULE_OPTIONS = {"dummy": DummyCameraModule,
+                         "rpicam": RPICameraModule}
+
+# The dslr modules can only be imported when gphoto2 is installed.
+try:
+    from backend.camera_modules.dslr_jpg_module import DSLRJpgModule
+    from backend.camera_modules.dslr_raw_module import DSLRRawModule
+    from backend.camera_modules.dslr_raw_transfer_module import DSLRRawTransferModule
+    CAMERA_MODULE_OPTIONS["dslr_jpg"] = DSLRJpgModule
+    CAMERA_MODULE_OPTIONS["dslr_raw"] = DSLRRawModule
+    CAMERA_MODULE_OPTIONS["dslr_raw_transfer"] = DSLRRawTransferModule
+except ModuleNotFoundError:
+    print("DLSR modules cannot be used as gphoto2 is not available.")
+    print("See intructions on how to install gphoto2 in readme.")
 
 STATIC_FOLDER_NAME = "static"
 STATIC_FOLDER_PATH = os.path.join("backend", STATIC_FOLDER_NAME)
 ALBUM_DIR_PATH = os.path.join(STATIC_FOLDER_PATH, "albums")
-
-CAMERA_MODULE_OPTIONS = {"dummy": DummyCameraModule,
-                         "rpicam": RPICameraModule,
-                         "dslr_jpg": DSLRJpgModule,
-                         "dslr_raw": DSLRRawModule,
-                         "dslr_raw_transfer": DSLRRawTransferModule}
 
 
 def find_ip_address_for_device():
