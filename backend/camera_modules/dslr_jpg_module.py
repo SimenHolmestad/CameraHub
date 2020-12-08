@@ -5,6 +5,7 @@ import time
 
 class DSLRJpgModule(BaseDSLRModule):
     """A dslr module where no raw images are stored"""
+
     def __init__(self, album_dir_name):
         super().__init__(album_dir_name)
 
@@ -25,7 +26,6 @@ class DSLRJpgModule(BaseDSLRModule):
     def capture_dslr_image(self, camera, image_path):
         # camera.capture should return the file path of the jpg image
         camera_file_path = camera.capture(gp.GP_CAPTURE_IMAGE)
-        print(camera_file_path.folder, camera_file_path.name)
 
         if "CR2" in camera_file_path.name:
             print("Raw image captured when using JPG module!")

@@ -4,6 +4,7 @@ import gphoto2 as gp
 
 class DSLRRawTransferModule(BaseDSLRModule):
     """A dslr module where raw images are stored on the Raspberry PI"""
+
     def __init__(self, album_dir_name):
         super().__init__(album_dir_name)
 
