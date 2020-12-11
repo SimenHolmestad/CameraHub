@@ -76,7 +76,7 @@ def create_app(static_folder_name, static_folder_path, camera_module):
 
         if request.method == "POST":
             try:
-                static_image_path = camera_module.try_capture_image(album_name)
+                static_image_path = camera_module.try_capture_image_to_album(album_name)
             except IOError as error:
                 return jsonify({"error": str(error)})
 

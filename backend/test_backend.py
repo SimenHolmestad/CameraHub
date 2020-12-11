@@ -346,7 +346,7 @@ class AppTestCase(unittest.TestCase):
         self.add_dummy_image_file_to_album("album1", "image0003.png")
         self.create_current_image_number_file("album1", 4)
 
-        static_image_path = self.camera_module.try_capture_image("album1")
+        static_image_path = self.camera_module.try_capture_image_to_album("album1")
         self.assertIn("0004", static_image_path)
 
         image_path = os.path.join(self.static_dir_name, static_image_path)
@@ -405,7 +405,7 @@ class AppTestCase(unittest.TestCase):
 
     def test_create_thumbnail_from_album_image(self):
         self.create_temp_album("album1", description="This is a very nice album")
-        self.camera_module.try_capture_image("album1")  # Should create image 1
+        self.camera_module.try_capture_image_to_album("album1")  # Should create image 1
 
         path_to_image1 = os.path.join(
             self.album_dir_path,
@@ -425,9 +425,9 @@ class AppTestCase(unittest.TestCase):
     def test_create_thumbnail_for_all_albums(self):
         self.create_temp_album("album1", description="This is a very nice album")
         self.create_temp_album("album2", description="This is also a very nice album")
-        self.camera_module.try_capture_image("album1")
-        self.camera_module.try_capture_image("album1")
-        self.camera_module.try_capture_image("album2")
+        self.camera_module.try_capture_image_to_album("album1")
+        self.camera_module.try_capture_image_to_album("album1")
+        self.camera_module.try_capture_image_to_album("album2")
 
         thumbnail_utils.create_thumbnails_for_all_albums(self.album_dir_path)
         thumbnail_path_album1 = os.path.join(

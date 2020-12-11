@@ -6,24 +6,8 @@ import argparse
 import qrcode
 import json
 from backend.app import create_app
-from backend.camera_modules.dummy_camera_module import DummyCameraModule
-from backend.camera_modules.rpicam_module import RPICameraModule
+from backend.camera_module_options import get_camera_module_options
 from backend.utils.thumbnail_utils import create_thumbnails_for_all_albums
-
-CAMERA_MODULE_OPTIONS = {"dummy": DummyCameraModule,
-                         "rpicam": RPICameraModule}
-
-# The dslr modules can only be imported when gphoto2 is installed.
-try:
-    from backend.camera_modules.dslr_jpg_module import DSLRJpgModule
-    from backend.camera_modules.dslr_raw_module import DSLRRawModule
-    from backend.camera_modules.dslr_raw_transfer_module import DSLRRawTransferModule
-    CAMERA_MODULE_OPTIONS["dslr_jpg"] = DSLRJpgModule
-    CAMERA_MODULE_OPTIONS["dslr_raw"] = DSLRRawModule
-    CAMERA_MODULE_OPTIONS["dslr_raw_transfer"] = DSLRRawTransferModule
-except ModuleNotFoundError:
-    print("DLSR modules cannot be used as gphoto2 is not available.")
-    print("See intructions on how to install gphoto2 in readme.")
 
 STATIC_FOLDER_NAME = "static"
 STATIC_FOLDER_PATH = os.path.join("backend", STATIC_FOLDER_NAME)
@@ -115,6 +99,7 @@ def change_frontend_proxy_config(host_ip):
     f = open("frontend/package.json", "r")
     lines = f.readlines()
     f.close()
+
     for i in range(len(lines)):
         if lines[i].startswith("  \"proxy\": "):
             lines[i] = "  \"proxy\": \"http://{}:5000/\"\n".format(host_ip)
@@ -125,7 +110,12 @@ def change_frontend_proxy_config(host_ip):
 
 
 def run_frontend(host_ip):
-    """Runs the frontend and returns the npm process so that it can be terminated later"""
+    """Runs the frontend and returns the npm process so that it can be
+    terminated later.
+
+    In the future, the frontend should be built and served by flask
+    instead of doing this.
+    """
     change_frontend_proxy_config(host_ip)
     os.chdir("frontend")
     if not os.path.exists("node_modules"):
@@ -161,7 +151,7 @@ def run_application(camera_module):
 
     # Run app
     app = create_app(STATIC_FOLDER_NAME, STATIC_FOLDER_PATH, camera_module)
-    app.run(debug=args.debug, host=host_ip)
+    app.run(host=host_ip)
 
     # Delete browser process if it was created
     if browser_process:
@@ -171,6 +161,10 @@ def run_application(camera_module):
 
 
 def run_backend_in_debug_mode(camera_module):
+    """Runs the backend in debug mode.
+
+    This should only need to be done when working on the frontend.
+    """
     print("Running the backend in debug mode. Start the frontend in a separate terminal window")
 
     change_frontend_proxy_config("localhost")
@@ -184,27 +178,40 @@ def run_backend_in_debug_mode(camera_module):
     app.run(debug=True, host="localhost")
 
 
-if __name__ == '__main__':
-    """Run the flask application."""
+def parse_command_line_args(camera_module_options):
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", help="Run in debug mode", action="store_true")
     parser.add_argument("-c", "--camera_module",
                         help="The camera module to use. Defaults to \"dummy\"",
-                        choices=CAMERA_MODULE_OPTIONS.keys(),
+                        choices=camera_module_options.keys(),
                         default="dummy")
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    # Create album directory if it does not exist
+
+def ensure_files_and_folders_are_correct():
     if not os.path.exists(ALBUM_DIR_PATH):
+        print("Creating album folder")
         os.makedirs(ALBUM_DIR_PATH)
 
-    print("Creating thumbnails for albums")
+    print("Creating thumbnails for all albums")
     create_thumbnails_for_all_albums(ALBUM_DIR_PATH)
 
-    # Initialize camera module based on input args
-    camera_module = CAMERA_MODULE_OPTIONS[args.camera_module](ALBUM_DIR_PATH)
+
+def initialize_application():
+    """Run the flask application."""
+    camera_module_options = get_camera_module_options()
+    args = parse_command_line_args(camera_module_options)
+
+    # Instantiate the right camera module class based on args
+    camera_module = camera_module_options[args.camera_module](ALBUM_DIR_PATH)
+
+    ensure_files_and_folders_are_correct()
 
     if args.debug:
         run_backend_in_debug_mode(camera_module)
     else:
         run_application(camera_module)
+
+
+if __name__ == '__main__':
+    initialize_application()

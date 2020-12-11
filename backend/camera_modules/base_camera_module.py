@@ -33,7 +33,7 @@ class BaseCameraModule(ABC):
             extension = self.file_extension
         return self.image_name_prefix + str(image_number).rjust(4, "0") + extension
 
-    def try_capture_image(self, album_name):
+    def try_capture_image_to_album(self, album_name):
         """Try to capture an image using the capture_image method.
 
         On success: Returns a dictionary containing the file path of
