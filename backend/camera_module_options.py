@@ -17,12 +17,18 @@ except ModuleNotFoundError:
     print("See intructions on how to install gphoto2 in readme.")
 
 
-def get_camera_module_options():
-    """returns a dictionary of the form
-    {
-        module_name: module_class
-    }
+class CameraModuleNotFoundError(Exception):
+    pass
 
-    With the camera modules available for the system
-    """
-    return CAMERA_MODULE_OPTIONS
+
+def get_camera_module_name_options():
+    """Returns a list with the names of the possible camera modules the
+    system can use."""
+    return list(CAMERA_MODULE_OPTIONS.keys())
+
+
+def get_instance_of_camera_module_by_name(module_name, album_dir_path):
+    if module_name not in get_camera_module_name_options():
+        raise CameraModuleNotFoundError
+
+    return CAMERA_MODULE_OPTIONS[module_name](album_dir_path)
