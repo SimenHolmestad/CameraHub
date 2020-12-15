@@ -1,6 +1,7 @@
 from PIL import Image
 from .base_album import BaseAlbum
 from .folder import Folder
+from .image_name_formatter import ImageNameFormatter
 MAX_THUMBNAIL_SIZE = (600, 600)
 
 
@@ -13,8 +14,7 @@ class FolderAlbum(BaseAlbum):
         self.album_folder = Folder(path_to_album_folders, album_name)
         self.images_folder = Folder(self.album_folder.get_path(), "images")
         self.thumbnails_folder = Folder(self.album_folder.get_path(), "thumbnails")
-
-        self.image_name_prefix = image_name_prefix
+        self.image_name_formatter = ImageNameFormatter(image_name_prefix)
 
     def get_album_description(self):
         if not self.album_folder.file_exists_in_folder("description.txt"):
@@ -32,11 +32,11 @@ class FolderAlbum(BaseAlbum):
             return None
 
         if self.__image_with_number_and_extension_exists(current_image_number, ".jpg"):
-            image_filename = self.__format_image_name(current_image_number, ".jpg")
+            image_filename = self.image_name_formatter.format_name(current_image_number, ".jpg")
             return self.images_folder.get_relative_url_to_file(image_filename)
 
         if self.__image_with_number_and_extension_exists(current_image_number, ".png"):
-            image_filename = self.__format_image_name(current_image_number, ".png")
+            image_filename = self.image_name_formatter.format_name(current_image_number, ".png")
             return self.images_folder.get_relative_url_to_file(image_filename)
 
     def get_relative_urls_of_all_images(self):
@@ -47,7 +47,7 @@ class FolderAlbum(BaseAlbum):
 
     def try_capture_image_to_album(self, camera_module):
         next_image_number = self.__get_current_image_number() + 1
-        next_image_name = self.__format_image_name(
+        next_image_name = self.image_name_formatter.format_name(
             next_image_number,
             camera_module.file_extension
         )
@@ -84,7 +84,7 @@ class FolderAlbum(BaseAlbum):
             self.__set_current_image_number(0)
 
     def __image_with_number_and_extension_exists(self, image_number, extension):
-        possible_file_name = self.__format_image_name(image_number, extension)
+        possible_file_name = self.image_name_formatter.format_name(image_number, extension)
 
         if self.images_folder.file_exists_in_folder(possible_file_name):
             return True
@@ -133,9 +133,6 @@ class FolderAlbum(BaseAlbum):
         self.__ensure_current_image_number_file_correct()
         return int(self.album_folder.read_file_in_folder(".image_number.txt"))
 
-    def __format_image_name(self, image_number, file_extension):
-        return self.image_name_prefix + str(image_number).rjust(4, "0") + file_extension
-
     def __create_thumbnail(self, input_path, output_path):
         image = Image.open(input_path)
         image = image.convert('RGB')
@@ -144,7 +141,7 @@ class FolderAlbum(BaseAlbum):
 
     def __get_thumbnail_path_from_image_name(self, image_name):
         image_number = self.__get_image_number_from_filename(image_name)
-        thumbnail_file_name = self.__format_image_name(image_number, ".jpg")
+        thumbnail_file_name = self.image_name_formatter.format_name(image_number, ".jpg")
         return self.thumbnails_folder.get_path_to_file(thumbnail_file_name)
 
     def __create_thumbnail_for_image(self, image_name):
