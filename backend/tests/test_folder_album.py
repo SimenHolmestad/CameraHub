@@ -252,6 +252,21 @@ class FolderAlbumTestCase(unittest.TestCase):
         ]
         self.assertEqual(thumbnail_urls, expected_thumnail_urls)
 
+    def test_album_empty_after_deleting_all_images(self):
+        camera_module = self.create_fast_dummy_module()
+        self.album.try_capture_image_to_album(camera_module)
+        self.album.try_capture_image_to_album(camera_module)
+
+        images_path = os.path.join(
+            self.test_dir_name,
+            "test_album",
+            "images"
+        )
+        shutil.rmtree(images_path)  # Remove images folder
+        os.mkdir(images_path)
+
+        self.assertEqual(self.album.get_relative_url_of_last_image(), None)
+
 
 if __name__ == '__main__':
     unittest.main()
