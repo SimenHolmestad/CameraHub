@@ -139,12 +139,9 @@ class FolderAlbum(BaseAlbum):
         image.thumbnail(MAX_THUMBNAIL_SIZE)
         image.save(output_path)
 
-    def __get_thumbnail_path_from_image_name(self, image_name):
-        image_number = self.__get_image_number_from_filename(image_name)
-        thumbnail_file_name = self.image_name_formatter.format_name(image_number, ".jpg")
-        return self.thumbnails_folder.get_path_to_file(thumbnail_file_name)
-
     def __create_thumbnail_for_image(self, image_name):
+        # All thumbnails are saved as .jpg
+        thumbnail_name = self.image_name_formatter.change_extension_of_filename(image_name, ".jpg")
+        thumbnail_path = self.thumbnails_folder.get_path_to_file(thumbnail_name)
         image_path = self.images_folder.get_path_to_file(image_name)
-        thumbnail_path = self.__get_thumbnail_path_from_image_name(image_name)
         self.__create_thumbnail(image_path, thumbnail_path)
