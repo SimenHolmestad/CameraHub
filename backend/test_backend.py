@@ -247,59 +247,6 @@ class AppTestCase(unittest.TestCase):
         expected_thumbnail2_url = "/{}/albums/album1/thumbnails/image2.jpg".format(self.static_dir_name)
         self.assertIn(expected_thumbnail2_url, content["thumbnail_urls"])
 
-    def test_camera_module_write_current_image_number(self):
-        self.create_temp_album("album1")
-        self.camera_module.write_current_image_number_file("album1", 4)
-        current_image_number_file_path = os.path.join(
-            self.album_dir_path,
-            "album1",
-            ".current_image_number.txt"
-        )
-        f = open(current_image_number_file_path)
-        current_image_number = int(f.read())
-        f.close()
-
-        self.assertEqual(current_image_number, 4)
-
-    def test_camera_module_find_current_image_number(self):
-        self.create_temp_album("album1")
-        self.create_current_image_number_file("album1", 3)
-        self.assertEqual(self.camera_module.find_current_image_number("album1"), 0)
-
-    def test_find_current_image_number_empty_dir_and_nonexistent_file(self):
-        self.create_temp_album("album1")
-        self.assertEqual(self.camera_module.find_current_image_number("album1"), 0)
-
-    def test_find_current_image_number_with_multiple_images_and_nonexistent_file(self):
-        self.create_temp_album("album1")
-        self.add_dummy_image_file_to_album("album1", "image0001.png")
-        self.add_dummy_image_file_to_album("album1", "image0002.png")
-        self.add_dummy_image_file_to_album("album1", "image0003.png")
-        self.assertEqual(self.camera_module.find_current_image_number("album1"), 3)
-
-    def test_find_current_image_number_with_multiple_images_weird_order_and_nonexistent_file(self):
-        self.create_temp_album("album1")
-        self.add_dummy_image_file_to_album("album1", "image0003.png")
-        self.add_dummy_image_file_to_album("album1", "image0005.png")
-        self.add_dummy_image_file_to_album("album1", "image0011.png")
-        self.assertEqual(self.camera_module.find_current_image_number("album1"), 11)
-
-    def test_find_current_image_number_with_wrong_file(self):
-        self.create_temp_album("album1")
-        self.add_dummy_image_file_to_album("album1", "image0001.png")
-        self.add_dummy_image_file_to_album("album1", "image0002.png")
-        self.add_dummy_image_file_to_album("album1", "image0003.png")
-        self.create_current_image_number_file("album1", 1)
-        self.assertEqual(self.camera_module.find_current_image_number("album1"), 3)
-
-    def test_find_current_image_number_with_nonexisting_current_file(self):
-        self.create_temp_album("album1")
-        self.add_dummy_image_file_to_album("album1", "image0001.png")
-        self.add_dummy_image_file_to_album("album1", "image0002.png")
-        self.add_dummy_image_file_to_album("album1", "image0003.png")
-        self.create_current_image_number_file("album1", 42)
-        self.assertEqual(self.camera_module.find_current_image_number("album1"), 3)
-
     def test_last_image_for_album(self):
         self.create_temp_album("album1")
         self.add_dummy_image_file_to_album("album1", "image0001.png")
@@ -339,33 +286,6 @@ class AppTestCase(unittest.TestCase):
         self.assertIn("error", content)
         self.assertEqual(content["error"], "album is empty")
 
-    def test_camera_module_try_capture_image(self):
-        self.create_temp_album("album1")
-        self.add_dummy_image_file_to_album("album1", "image0001.png")
-        self.add_dummy_image_file_to_album("album1", "image0002.png")
-        self.add_dummy_image_file_to_album("album1", "image0003.png")
-        self.create_current_image_number_file("album1", 4)
-
-        static_image_path = self.camera_module.try_capture_image_to_album("album1")
-        self.assertIn("0004", static_image_path)
-
-        image_path = os.path.join(self.static_dir_name, static_image_path)
-
-        # Make sure the new image file exist
-        self.assertTrue(os.path.exists(image_path))
-
-        # Make sure image number file is updated
-        current_image_number_file_path = os.path.join(
-            self.album_dir_path,
-            "album1",
-            ".current_image_number.txt"
-        )
-        f = open(current_image_number_file_path)
-        current_image_number = int(f.read())
-        f.close()
-
-        self.assertEqual(current_image_number, 4)
-
     def test_capture_image_endpoint(self):
         self.create_temp_album("album1")
         test_client = self.app.test_client()
@@ -384,70 +304,6 @@ class AppTestCase(unittest.TestCase):
         self.assertIn("thumbnail_url", content)
         expected_thumbnail_url = "/{}/albums/album1/thumbnails/image0001.jpg".format(self.static_dir_name)
         self.assertEqual(content["thumbnail_url"], expected_thumbnail_url)
-
-    def test_get_thumbnail_path_from_album_image_path(self):
-        test_path = os.path.join(
-            "static",
-            "albums",
-            "album_name",
-            "images",
-            "image1.png"
-        )
-        output = thumbnail_utils.get_thumbnail_path_from_album_image_path(test_path)
-        expected_output = os.path.join(
-            "static",
-            "albums",
-            "album_name",
-            "thumbnails",
-            "image1.jpg"
-        )
-        self.assertEqual(output, expected_output)
-
-    def test_create_thumbnail_from_album_image(self):
-        self.create_temp_album("album1", description="This is a very nice album")
-        self.camera_module.try_capture_image_to_album("album1")  # Should create image 1
-
-        path_to_image1 = os.path.join(
-            self.album_dir_path,
-            "album1",
-            "images",
-            "image0001.png"
-        )
-        expected_path_to_thumbnail1 = os.path.join(
-            self.album_dir_path,
-            "album1",
-            "thumbnails",
-            "image0001.jpg"
-        )
-        thumbnail_utils.create_thumbnail_from_album_image(path_to_image1)
-        self.assertTrue(os.path.exists(expected_path_to_thumbnail1))
-
-    def test_create_thumbnail_for_all_albums(self):
-        self.create_temp_album("album1", description="This is a very nice album")
-        self.create_temp_album("album2", description="This is also a very nice album")
-        self.camera_module.try_capture_image_to_album("album1")
-        self.camera_module.try_capture_image_to_album("album1")
-        self.camera_module.try_capture_image_to_album("album2")
-
-        thumbnail_utils.create_thumbnails_for_all_albums(self.album_dir_path)
-        thumbnail_path_album1 = os.path.join(
-            self.album_dir_path,
-            "album1",
-            "thumbnails"
-        )
-        thumbnails_for_album1 = os.listdir(thumbnail_path_album1)
-        self.assertEqual(len(thumbnails_for_album1), 2)
-        self.assertIn("image0001.jpg", thumbnails_for_album1)
-        self.assertIn("image0002.jpg", thumbnails_for_album1)
-
-        thumbnail_path_album2 = os.path.join(
-            self.album_dir_path,
-            "album2",
-            "thumbnails"
-        )
-        thumbnails_for_album2 = os.listdir(thumbnail_path_album2)
-        self.assertEqual(len(thumbnails_for_album2), 1)
-        self.assertIn("image0001.jpg", thumbnails_for_album2)
 
 
 if __name__ == '__main__':

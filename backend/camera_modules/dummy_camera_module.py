@@ -9,14 +9,13 @@ class DummyCameraModule(BaseCameraModule):
     camera"""
 
     def __init__(self,
-                 album_dir_name,
                  file_extension=".png",
                  width=1200,
                  height=800,
                  number_of_circles=80,
                  min_circle_radius=30,
                  max_circle_radius=80):
-        super().__init__(album_dir_name, file_extension)
+        super().__init__(file_extension)
         self.width = width
         self.height = height
         self.number_of_circles = number_of_circles
@@ -49,7 +48,7 @@ class DummyCameraModule(BaseCameraModule):
                     image[y, x, 2] = b
         return image
 
-    def capture_image(self, image_path):
+    def try_capture_image(self, image_path):
         """Creates an image and saves it in "image_path"."""
         # Create white image
         image = np.full((self.height, self.width, 3), 255, dtype=np.uint8)
