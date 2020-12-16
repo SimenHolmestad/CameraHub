@@ -3,7 +3,7 @@ import shutil
 import unittest
 import tempfile
 from album_storage.folder_album import FolderAlbum
-from camera_modules.dummy_camera_module import DummyCameraModule
+from .test_utils import create_fast_dummy_module
 
 
 class FolderAlbumTestCase(unittest.TestCase):
@@ -14,16 +14,6 @@ class FolderAlbumTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.test_dir.cleanup()  # Remove test_dir from file system
-
-    def create_fast_dummy_module(self):
-        """Creates a faster dummy module for quicker test runs"""
-        return DummyCameraModule(
-            width=120,
-            height=80,
-            number_of_circles=5,
-            min_circle_radius=5,
-            max_circle_radius=15
-        )
 
     def add_dummy_image_file_to_album(self, album_name, image_name):
         """Create a dummy image file with the specified name to the specified album. """
@@ -80,7 +70,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertEqual(self.album.get_album_description(), "This album is a test")
 
     def test_capture_image_to_album(self):
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
         expected_image_url = "{}/test_album/images/image0001.png".format(
@@ -89,7 +79,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertEqual(self.album.get_relative_url_of_last_image(), expected_image_url)
 
     def test_captured_image_exists(self):
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
         expected_image_filepath = os.path.join(
@@ -106,7 +96,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
 
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
         expected_image_filepath = os.path.join(
@@ -124,7 +114,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0017.jpg")
 
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
         expected_image_filepath = os.path.join(
@@ -142,7 +132,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
         self.create_current_image_number_file("test_album", 20)
 
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
         expected_image_filepath = os.path.join(
@@ -155,7 +145,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(expected_image_filepath))
 
     def test_capture_image_creates_thumbnail(self):
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
         expected_thumbnail_filepath = os.path.join(
@@ -168,7 +158,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(expected_thumbnail_filepath))
 
     def test_image_and_thumbnail_same_number(self):
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0003.jpg")
@@ -185,7 +175,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(expected_thumbnail_filepath))
 
     def test_ensure_thumbnails_correct(self):
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
 
@@ -202,7 +192,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertEqual(thumbnails_folder_content, ['image0001.jpg', 'image0002.jpg'])
 
     def test_ensure_thumbnails_correct_with_deleted_image(self):
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
@@ -225,7 +215,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertEqual(thumbnails_folder_content, ['image0001.jpg', 'image0003.jpg'])
 
     def test_get_url_of_all_images(self):
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
@@ -240,7 +230,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertEqual(image_urls, expected_image_urls)
 
     def test_get_url_of_all_thumbnails(self):
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
 
@@ -253,7 +243,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.assertEqual(thumbnail_urls, expected_thumnail_urls)
 
     def test_album_empty_after_deleting_all_images(self):
-        camera_module = self.create_fast_dummy_module()
+        camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
 
