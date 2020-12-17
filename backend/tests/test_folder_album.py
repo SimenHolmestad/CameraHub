@@ -73,7 +73,7 @@ class FolderAlbumTestCase(unittest.TestCase):
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
-        expected_image_url = "{}/test_album/images/image0001.png".format(
+        expected_image_url = "/{}/test_album/images/image0001.png".format(
             self.test_dir_name
         )
         self.assertEqual(self.album.get_relative_url_of_last_image(), expected_image_url)
@@ -223,9 +223,9 @@ class FolderAlbumTestCase(unittest.TestCase):
         image_urls = self.album.get_relative_urls_of_all_images()
 
         expected_image_urls = [
-            self.test_dir_name + "/test_album/images/image0001.png",
-            self.test_dir_name + "/test_album/images/image0002.png",
-            self.test_dir_name + "/test_album/images/image0003.png",
+            "/" + self.test_dir_name + "/test_album/images/image0001.png",
+            "/" + self.test_dir_name + "/test_album/images/image0002.png",
+            "/" + self.test_dir_name + "/test_album/images/image0003.png",
         ]
         self.assertEqual(image_urls, expected_image_urls)
 
@@ -237,8 +237,8 @@ class FolderAlbumTestCase(unittest.TestCase):
         thumbnail_urls = self.album.get_relative_urls_of_all_thumbnails()
 
         expected_thumnail_urls = [
-            self.test_dir_name + "/test_album/thumbnails/image0001.jpg",
-            self.test_dir_name + "/test_album/thumbnails/image0002.jpg",
+            "/" + self.test_dir_name + "/test_album/thumbnails/image0001.jpg",
+            "/" + self.test_dir_name + "/test_album/thumbnails/image0002.jpg",
         ]
         self.assertEqual(thumbnail_urls, expected_thumnail_urls)
 

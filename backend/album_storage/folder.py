@@ -37,7 +37,7 @@ class Folder():
     def get_relative_url_to_file(self, filename):
         path_to_files = self.get_path_to_file(filename)
         path = list(Path(path_to_files).parts)
-        return "/".join(path)
+        return "/" + "/".join(path)
 
     def get_relative_urls_to_all_files(self):
         file_names = self.get_sorted_folder_contents()
