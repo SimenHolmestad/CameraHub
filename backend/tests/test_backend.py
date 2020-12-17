@@ -1,10 +1,10 @@
 import unittest
-from .app import create_app
+from app import create_app
 import tempfile
 import os
 import json
-from .camera_modules.dummy_camera_module import DummyCameraModule
-from .utils import thumbnail_utils as thumbnail_utils
+from album_storage.folder_album_handler import FolderAlbumHandler
+from .test_utils import create_fast_dummy_module
 
 
 class AppTestCase(unittest.TestCase):
@@ -16,10 +16,10 @@ class AppTestCase(unittest.TestCase):
         self.album_dir_path = os.path.join(self.static_dir_name, "albums")
         os.makedirs(self.album_dir_path)
 
-        self.camera_module = DummyCameraModule(
-            self.album_dir_path,
-            number_of_circles=10)
-        self.app = create_app(self.static_dir_name, self.static_dir_name, self.camera_module)
+        self.camera_module = create_fast_dummy_module()
+
+        self.album_handler = FolderAlbumHandler(self.static_dir_name, "albums")
+        self.app = create_app(self.album_handler, self.static_dir_name, self.camera_module)
 
     def tearDown(self):
         self.static_dir.cleanup()
@@ -46,15 +46,10 @@ class AppTestCase(unittest.TestCase):
             f.write(description)
             f.close()
 
-    def add_dummy_image_file_to_album(self, album_name, image_name):
+    def add_dummy_image_file_to_album(self, album_name):
         """Create a dummy image file with the specified name to the specified album. """
-        path_to_image_file = os.path.join(
-            self.album_dir_path,
-            album_name,
-            "images",
-            image_name
-        )
-        open(path_to_image_file, 'a').close()
+        album = self.album_handler.get_album(album_name)
+        album.try_capture_image_to_album(self.camera_module)
 
     def create_current_image_number_file(self, album_name, current_image_number):
         current_image_number_file_path = os.path.join(
@@ -218,8 +213,8 @@ class AppTestCase(unittest.TestCase):
         self.create_temp_album("album1", description="This is a very nice album")
 
         # Create some dummy files to add to the album
-        self.add_dummy_image_file_to_album("album1", "image1.jpg")
-        self.add_dummy_image_file_to_album("album1", "image2.jpg")
+        self.add_dummy_image_file_to_album("album1")
+        self.add_dummy_image_file_to_album("album1")
 
         test_client = self.app.test_client()
         response = test_client.get('/albums/album1', content_type='application/json')
@@ -237,21 +232,21 @@ class AppTestCase(unittest.TestCase):
         self.assertEqual(len(content["image_urls"]), 2)
         self.assertEqual(len(content["thumbnail_urls"]), 2)
 
-        expected_image1_url = "/{}/albums/album1/images/image1.jpg".format(self.static_dir_name)
+        expected_image1_url = "/{}/albums/album1/images/image0001.png".format(self.static_dir_name)
         self.assertIn(expected_image1_url, content["image_urls"])
-        expected_image2_url = "/{}/albums/album1/images/image2.jpg".format(self.static_dir_name)
+        expected_image2_url = "/{}/albums/album1/images/image0002.png".format(self.static_dir_name)
         self.assertIn(expected_image2_url, content["image_urls"])
 
-        expected_thumbnail1_url = "/{}/albums/album1/thumbnails/image1.jpg".format(self.static_dir_name)
+        expected_thumbnail1_url = "/{}/albums/album1/thumbnails/image0001.jpg".format(self.static_dir_name)
         self.assertIn(expected_thumbnail1_url, content["thumbnail_urls"])
-        expected_thumbnail2_url = "/{}/albums/album1/thumbnails/image2.jpg".format(self.static_dir_name)
+        expected_thumbnail2_url = "/{}/albums/album1/thumbnails/image0002.jpg".format(self.static_dir_name)
         self.assertIn(expected_thumbnail2_url, content["thumbnail_urls"])
 
     def test_last_image_for_album(self):
         self.create_temp_album("album1")
-        self.add_dummy_image_file_to_album("album1", "image0001.png")
-        self.add_dummy_image_file_to_album("album1", "image0002.png")
-        self.add_dummy_image_file_to_album("album1", "image0003.png")
+        self.add_dummy_image_file_to_album("album1")
+        self.add_dummy_image_file_to_album("album1")
+        self.add_dummy_image_file_to_album("album1")
 
         test_client = self.app.test_client()
         response = test_client.get("/albums/album1/last_image")
@@ -263,16 +258,16 @@ class AppTestCase(unittest.TestCase):
 
     def test_last_image_for_album_jpg(self):
         self.create_temp_album("album1")
-        self.add_dummy_image_file_to_album("album1", "image0001.jpg")
-        self.add_dummy_image_file_to_album("album1", "image0002.jpg")
-        self.add_dummy_image_file_to_album("album1", "image0003.jpg")
+        self.add_dummy_image_file_to_album("album1")
+        self.add_dummy_image_file_to_album("album1")
+        self.add_dummy_image_file_to_album("album1")
 
         test_client = self.app.test_client()
         response = test_client.get("/albums/album1/last_image")
         content = response.json
 
         self.assertIn("last_image_url", content)
-        expected_url = "/{}/albums/album1/images/image0003.jpg".format(self.static_dir_name)
+        expected_url = "/{}/albums/album1/images/image0003.png".format(self.static_dir_name)
         self.assertEqual(content["last_image_url"], expected_url)
 
     def test_last_image_for_album_on_empty_album(self):
