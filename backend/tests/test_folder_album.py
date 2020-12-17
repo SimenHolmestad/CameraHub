@@ -2,7 +2,7 @@ import os
 import shutil
 import unittest
 import tempfile
-from album_storage.folder_album import FolderAlbum
+from backend.album_storage.folder_album import FolderAlbum
 from .test_utils import create_fast_dummy_module
 
 

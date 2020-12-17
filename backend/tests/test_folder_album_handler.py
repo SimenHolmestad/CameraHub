@@ -2,8 +2,8 @@ import os
 import shutil
 import unittest
 import tempfile
-from album_storage.folder_album_handler import FolderAlbumHandler, AlbumNotFoundError
-from album_storage.base_album import BaseAlbum
+from backend.album_storage.folder_album_handler import FolderAlbumHandler, AlbumNotFoundError
+from backend.album_storage.base_album import BaseAlbum
 from .test_utils import create_fast_dummy_module
 
 

@@ -107,7 +107,7 @@ The camera module is the part of the system which handles image capturing. If Ca
 
 It is possible to test a camera module without running the app by doing:
 ```
-python3 test_camera_module.py <name_of_module>
+python3 try_camera_module.py <name_of_module>
 ```
 Doing this will create a folder named `test_albums` which will contain the image files created.
 
@@ -190,7 +190,7 @@ This will show a page containing the last image added to the album in fullscreen
 There is currently no way to reach this page for "normal users" without altering the url.
 
 # Running the tests
-Currently, only the backend code is tested. To run the backend tests, navigate to the backend directory by doing `cd backend` and then do:
+Currently, only the backend code is tested. To run the backend tests, navigate to the root directory of the project and do:
 ```
 python3 -m unittest
 ```

@@ -1,9 +1,9 @@
 import unittest
-from app import create_app
 import tempfile
 import os
 import json
-from album_storage.folder_album_handler import FolderAlbumHandler
+from backend.album_storage.folder_album_handler import FolderAlbumHandler
+from backend.app import create_app
 from .test_utils import create_fast_dummy_module
 
 

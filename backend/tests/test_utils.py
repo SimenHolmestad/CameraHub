@@ -1,4 +1,4 @@
-from camera_modules.dummy_camera_module import DummyCameraModule
+from backend.camera_modules.dummy_camera_module import DummyCameraModule
 
 
 def create_fast_dummy_module():
