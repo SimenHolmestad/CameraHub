@@ -6,8 +6,8 @@ from pathlib import Path
 class Folder():
     """A class for interacting with a folder"""
 
-    def __init__(self, base_dir, dir_name):
-        self.base_dir = base_dir
+    def __init__(self, base_path, dir_name):
+        self.base_path = base_path
         self.dir_name = dir_name
         self.create_folder_if_not_exist()
 
@@ -20,7 +20,7 @@ class Folder():
 
     def get_path(self):
         return os.path.join(
-            self.base_dir,
+            self.base_path,
             self.dir_name
         )
 

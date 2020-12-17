@@ -1,5 +1,5 @@
 from flask import Flask
-from album_api.api_blueprint import construct_album_api_blueprint
+from backend.album_api.api_blueprint import construct_album_api_blueprint
 
 
 def create_app(album_handler, static_folder_name, camera_module):

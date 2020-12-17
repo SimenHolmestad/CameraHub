@@ -3,6 +3,7 @@ import shutil
 import unittest
 import tempfile
 from backend.album_storage.folder_album import FolderAlbum
+from backend.album_storage.folder import Folder
 from .test_utils import create_fast_dummy_module
 
 
@@ -10,7 +11,8 @@ class FolderAlbumTestCase(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.TemporaryDirectory(dir=".")
         self.test_dir_name = self.test_dir.name.split("./")[1]
-        self.album = FolderAlbum("test_album", self.test_dir_name)
+        folder_for_album = Folder(".", self.test_dir_name)
+        self.album = FolderAlbum("test_album", folder_for_album)
 
     def tearDown(self):
         self.test_dir.cleanup()  # Remove test_dir from file system

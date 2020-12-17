@@ -14,12 +14,12 @@ class FolderAlbumHandler(BaseAlbumHandler):
 
     def get_album(self, album_name):
         if album_name in self.get_available_album_names():
-            return FolderAlbum(album_name, self.folder_for_albums.get_path())
+            return FolderAlbum(album_name, self.folder_for_albums)
 
         raise AlbumNotFoundError()
 
     def get_or_create_album(self, album_name, description=""):
-        album = FolderAlbum(album_name, self.folder_for_albums.get_path())
+        album = FolderAlbum(album_name, self.folder_for_albums)
         if description != "":
             album.set_album_description(description)
         return album

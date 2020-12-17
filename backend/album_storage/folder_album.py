@@ -11,8 +11,9 @@ class FolderAlbum(BaseAlbum):
     stored in a single folder.
     """
 
-    def __init__(self, album_name, path_to_album_folders, image_name_prefix="image"):
-        self.album_folder = Folder(path_to_album_folders, album_name)
+    def __init__(self, album_name, album_folder_container, image_name_prefix="image"):
+        self.album_folder_container = album_folder_container
+        self.album_folder = Folder(album_folder_container.get_path(), album_name)
         self.images_folder = Folder(self.album_folder.get_path(), "images")
         self.thumbnails_folder = Folder(self.album_folder.get_path(), "thumbnails")
         self.image_name_formatter = ImageNameFormatter(image_name_prefix)
