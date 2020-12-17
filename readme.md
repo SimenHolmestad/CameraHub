@@ -190,9 +190,9 @@ This will show a page containing the last image added to the album in fullscreen
 There is currently no way to reach this page for "normal users" without altering the url.
 
 # Running the tests
-Currently, only the backend code is tested. To run the tests, go to the top directory and do:
+Currently, only the backend code is tested. To run the backend tests, navigate to the backend directory by doing `cd backend` and then do:
 ```
-python3 -m backend.test_backend
+python3 -m unittest
 ```
 
 # Design
