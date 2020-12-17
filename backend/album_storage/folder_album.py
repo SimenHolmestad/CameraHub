@@ -39,6 +39,15 @@ class FolderAlbum(BaseAlbum):
 
         return self.images_folder.get_relative_url_to_file(last_image_filename)
 
+    def get_relative_url_of_last_thumbnail(self):
+        """Returns the url of the last thumbnail captured to the album."""
+        last_image_filename = self.current_image_tracker.get_name_of_last_image()
+        if not last_image_filename:
+            return None  # This means album is empty
+
+        thumbnail_filename = self.__convert_image_name_to_thumbnail_name(last_image_filename)
+        return self.thumbnails_folder.get_relative_url_to_file(thumbnail_filename)
+
     def get_relative_urls_of_all_images(self):
         return self.images_folder.get_relative_urls_to_all_files()
 
@@ -79,7 +88,10 @@ class FolderAlbum(BaseAlbum):
 
     def __create_thumbnail_for_image(self, image_name):
         # All thumbnails are saved as .jpg
-        thumbnail_name = self.image_name_formatter.change_extension_of_filename(image_name, ".jpg")
+        thumbnail_name = self.__convert_image_name_to_thumbnail_name(image_name)
         thumbnail_path = self.thumbnails_folder.get_path_to_file(thumbnail_name)
         image_path = self.images_folder.get_path_to_file(image_name)
         self.__create_thumbnail(image_path, thumbnail_path)
+
+    def __convert_image_name_to_thumbnail_name(self, image_name):
+        return self.image_name_formatter.change_extension_of_filename(image_name, ".jpg")

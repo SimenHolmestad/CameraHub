@@ -62,8 +62,11 @@ class FolderAlbumTestCase(unittest.TestCase):
     def test_newly_created_album_has_no_description(self):
         self.assertEqual(self.album.get_album_description(), "")
 
-    def test_newly_created_album_has_no_current_image(self):
+    def test_newly_created_album_has_no_last_image(self):
         self.assertEqual(self.album.get_relative_url_of_last_image(), None)
+
+    def test_newly_created_album_has_no_last_thumbnail(self):
+        self.assertEqual(self.album.get_relative_url_of_last_thumbnail(), None)
 
     def test_set_album_description(self):
         self.album.set_album_description("This album is a test")
@@ -76,7 +79,11 @@ class FolderAlbumTestCase(unittest.TestCase):
         expected_image_url = "/{}/test_album/images/image0001.png".format(
             self.test_dir_name
         )
+        expected_thumbnail_url = "/{}/test_album/thumbnails/image0001.jpg".format(
+            self.test_dir_name
+        )
         self.assertEqual(self.album.get_relative_url_of_last_image(), expected_image_url)
+        self.assertEqual(self.album.get_relative_url_of_last_thumbnail(), expected_thumbnail_url)
 
     def test_captured_image_exists(self):
         camera_module = create_fast_dummy_module()
