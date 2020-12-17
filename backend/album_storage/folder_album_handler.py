@@ -24,6 +24,9 @@ class FolderAlbumHandler(BaseAlbumHandler):
             album.set_album_description(description)
         return album
 
+    def album_exists(self, album_name):
+        return self.folder_for_albums.file_exists_in_folder(album_name)
+
     def ensure_all_thumbnails_correct(self):
         album_names = self.get_available_album_names()
         for name in album_names:

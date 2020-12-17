@@ -42,6 +42,13 @@ class FolderAlbumHandlerTestCase(unittest.TestCase):
         album = self.album_handler.get_or_create_album("test_album", "This is an album")
         self.assertEqual(album.get_album_description(), "This is an album")
 
+    def test_nonexistent_album_does_not_exist(self):
+        self.assertFalse(self.album_handler.album_exists("test_album"))
+
+    def test_existing_album_does_exist(self):
+        self.album_handler.get_or_create_album("test_album", "This is an album")
+        self.assertTrue(self.album_handler.album_exists("test_album"))
+
     def test_get_album_second_time(self):
         self.album_handler.get_or_create_album("test_album", "This is an album")
         album = self.album_handler.get_album("test_album")

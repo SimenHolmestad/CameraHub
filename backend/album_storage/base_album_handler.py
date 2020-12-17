@@ -19,3 +19,7 @@ class BaseAlbumHandler(ABC):
     @abstractmethod
     def ensure_all_thumbnails_correct(self):
         pass
+
+    @abstractmethod
+    def album_exists(self, album_name):
+        pass
