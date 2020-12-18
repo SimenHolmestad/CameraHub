@@ -61,7 +61,7 @@ def construct_album_api_blueprint(album_handler, camera_module):
             })
 
         return jsonify({
-            "last_image_url": relative_url
+            "last_image_url": create_static_url(relative_url)
         })
 
     def create_or_update_album(request):
@@ -87,25 +87,31 @@ def construct_album_api_blueprint(album_handler, camera_module):
         album = album_handler.get_album(album_name)
         album.try_capture_image_to_album(camera_module)
 
-        image_url = album.get_relative_url_of_last_image()
-        thumbnail_url = album.get_relative_url_of_last_thumbnail()
+        relative_image_url = album.get_relative_url_of_last_image()
+        relative_thumbnail_url = album.get_relative_url_of_last_thumbnail()
         return jsonify({
             "success": "Image successfully captured",
-            "image_url": image_url,
-            "thumbnail_url": thumbnail_url
+            "image_url": create_static_url(relative_image_url),
+            "thumbnail_url": create_static_url(relative_thumbnail_url)
         })
 
     def get_album_information(album_name):
         album = album_handler.get_album(album_name)
         description = album.get_album_description()
-        image_urls = album.get_relative_urls_of_all_images()
-        thumbnail_urls = album.get_relative_urls_of_all_thumbnails()
+        image_urls = reversed(album.get_relative_urls_of_all_images())
+        thumbnail_urls = reversed(album.get_relative_urls_of_all_thumbnails())
 
         return jsonify({
             "album_name": album_name,
-            "image_urls": image_urls,
-            "thumbnail_urls": thumbnail_urls,
+            "image_urls": create_static_url_list(image_urls),
+            "thumbnail_urls": create_static_url_list(thumbnail_urls),
             "description": description,
         })
+
+    def create_static_url(relative_url):
+        return url_for('static', filename=relative_url)
+
+    def create_static_url_list(relative_url_list):
+        return list(map(create_static_url, relative_url_list))
 
     return(album_api_blueprint)

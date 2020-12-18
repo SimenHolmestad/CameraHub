@@ -1,6 +1,5 @@
 import os
 import shutil
-from pathlib import Path
 
 
 class Folder():
@@ -24,6 +23,9 @@ class Folder():
             self.dir_name
         )
 
+    def get_name(self):
+        return self.dir_name
+
     def count_files(self):
         """Return number of files inside the folder"""
         return len(self.get_folder_contents())
@@ -33,19 +35,6 @@ class Folder():
             self.get_path(),
             filename
         )
-
-    def get_relative_url_to_file(self, filename):
-        path_to_files = self.get_path_to_file(filename)
-        path = list(Path(path_to_files).parts)
-        return "/" + "/".join(path)
-
-    def get_relative_urls_to_all_files(self):
-        file_names = self.get_sorted_folder_contents()
-        urls = list(map(
-            lambda name: self.get_relative_url_to_file(name),
-            file_names
-        ))
-        return urls
 
     def write_file_in_folder(self, filename, content):
         path_to_file = self.get_path_to_file(filename)

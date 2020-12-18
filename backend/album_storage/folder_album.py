@@ -38,7 +38,7 @@ class FolderAlbum(BaseAlbum):
         if not last_image_filename:
             return None  # This means album is empty
 
-        return self.images_folder.get_relative_url_to_file(last_image_filename)
+        return self.__get_relative_url_to_file_in_folder(self.images_folder, last_image_filename)
 
     def get_relative_url_of_last_thumbnail(self):
         """Returns the url of the last thumbnail captured to the album."""
@@ -47,13 +47,17 @@ class FolderAlbum(BaseAlbum):
             return None  # This means album is empty
 
         thumbnail_filename = self.__convert_image_name_to_thumbnail_name(last_image_filename)
-        return self.thumbnails_folder.get_relative_url_to_file(thumbnail_filename)
+        return self.__get_relative_url_to_file_in_folder(self.thumbnails_folder, thumbnail_filename)
 
     def get_relative_urls_of_all_images(self):
-        return self.images_folder.get_relative_urls_to_all_files()
+        return self.__get_relative_urls_to_all_files_in_folder(
+            self.images_folder
+        )
 
     def get_relative_urls_of_all_thumbnails(self):
-        return self.thumbnails_folder.get_relative_urls_to_all_files()
+        return self.__get_relative_urls_to_all_files_in_folder(
+            self.thumbnails_folder
+        )
 
     def try_capture_image_to_album(self, camera_module):
         next_image_name = self.current_image_tracker.get_next_image_name(
@@ -96,3 +100,20 @@ class FolderAlbum(BaseAlbum):
 
     def __convert_image_name_to_thumbnail_name(self, image_name):
         return self.image_name_formatter.change_extension_of_filename(image_name, ".jpg")
+
+    def __get_relative_url_to_file_in_folder(self, folder, filename):
+        """Returns the url relative to the album folder container"""
+        return "{}/{}/{}/{}".format(
+            self.album_folder_container.get_name(),
+            self.album_folder.get_name(),
+            folder.get_name(),
+            filename
+        )
+
+    def __get_relative_urls_to_all_files_in_folder(self, folder):
+        filenames = folder.get_sorted_folder_contents()
+        relative_urls = list(map(
+            lambda name: self.__get_relative_url_to_file_in_folder(folder, name),
+            filenames
+        ))
+        return relative_urls

@@ -78,14 +78,11 @@ class FolderAlbumTestCase(unittest.TestCase):
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
 
-        expected_image_url = "/{}/test_album/images/image0001.png".format(
-            self.test_dir_name
-        )
-        expected_thumbnail_url = "/{}/test_album/thumbnails/image0001.jpg".format(
-            self.test_dir_name
-        )
-        self.assertEqual(self.album.get_relative_url_of_last_image(), expected_image_url)
-        self.assertEqual(self.album.get_relative_url_of_last_thumbnail(), expected_thumbnail_url)
+        expected_relative_image_url = "{}/test_album/images/image0001.png".format(self.test_dir_name)
+        expected_relative_thumbnail_url = "{}/test_album/thumbnails/image0001.jpg".format(self.test_dir_name)
+
+        self.assertEqual(self.album.get_relative_url_of_last_image(), expected_relative_image_url)
+        self.assertEqual(self.album.get_relative_url_of_last_thumbnail(), expected_relative_thumbnail_url)
 
     def test_captured_image_exists(self):
         camera_module = create_fast_dummy_module()
@@ -229,27 +226,29 @@ class FolderAlbumTestCase(unittest.TestCase):
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
 
-        image_urls = self.album.get_relative_urls_of_all_images()
+        relative_image_urls = self.album.get_relative_urls_of_all_images()
 
-        expected_image_urls = [
-            "/" + self.test_dir_name + "/test_album/images/image0001.png",
-            "/" + self.test_dir_name + "/test_album/images/image0002.png",
-            "/" + self.test_dir_name + "/test_album/images/image0003.png",
+        expected_realtive_image_urls = [
+            self.test_dir_name + "/test_album/images/image0001.png",
+            self.test_dir_name + "/test_album/images/image0002.png",
+            self.test_dir_name + "/test_album/images/image0003.png",
         ]
-        self.assertEqual(image_urls, expected_image_urls)
+        self.assertEqual(relative_image_urls, expected_realtive_image_urls)
 
     def test_get_url_of_all_thumbnails(self):
         camera_module = create_fast_dummy_module()
         self.album.try_capture_image_to_album(camera_module)
         self.album.try_capture_image_to_album(camera_module)
 
-        thumbnail_urls = self.album.get_relative_urls_of_all_thumbnails()
+        relative_thumbnail_urls = self.album.get_relative_urls_of_all_thumbnails()
 
-        expected_thumnail_urls = [
-            "/" + self.test_dir_name + "/test_album/thumbnails/image0001.jpg",
-            "/" + self.test_dir_name + "/test_album/thumbnails/image0002.jpg",
+        # The urls should be relative to album container (The folder
+        # which contains all the album folders)
+        expected_relative_thumnail_urls = [
+            self.test_dir_name + "/test_album/thumbnails/image0001.jpg",
+            self.test_dir_name + "/test_album/thumbnails/image0002.jpg",
         ]
-        self.assertEqual(thumbnail_urls, expected_thumnail_urls)
+        self.assertEqual(relative_thumbnail_urls, expected_relative_thumnail_urls)
 
     def test_album_empty_after_deleting_all_images(self):
         camera_module = create_fast_dummy_module()
