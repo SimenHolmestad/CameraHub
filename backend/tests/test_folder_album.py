@@ -163,7 +163,7 @@ class FolderAlbumTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(expected_thumbnail_filepath))
 
-    def test_image_and_thumbnail_same_number(self):
+    def test_image_and_thumbnail_same_number_after_capture(self):
         camera_module = create_fast_dummy_module()
         self.add_dummy_image_file_to_album("test_album", "image0001.jpg")
         self.add_dummy_image_file_to_album("test_album", "image0002.jpg")

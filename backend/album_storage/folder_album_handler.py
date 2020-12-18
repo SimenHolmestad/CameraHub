@@ -10,7 +10,7 @@ class FolderAlbumHandler(BaseAlbumHandler):
         self.folder_for_albums = Folder(base_path, folder_for_albums_name)
 
     def get_available_album_names(self):
-        return self.folder_for_albums.get_folder_contents()
+        return self.folder_for_albums.get_sorted_folder_contents()
 
     def get_album(self, album_name):
         if album_name in self.get_available_album_names():

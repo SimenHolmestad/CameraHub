@@ -38,6 +38,11 @@ class FolderAlbumHandlerTestCase(unittest.TestCase):
         album = self.album_handler.get_or_create_album("test_album", "")
         self.assertEqual(album.get_album_description(), "")
 
+    def test_album_names_in_available_album_names_after_creating_albums(self):
+        self.album_handler.get_or_create_album("test_album1", "")
+        self.album_handler.get_or_create_album("test_album2", "")
+        self.assertEqual(self.album_handler.get_available_album_names(), ["test_album1", "test_album2"])
+
     def test_create_new_album_with_description(self):
         album = self.album_handler.get_or_create_album("test_album", "This is an album")
         self.assertEqual(album.get_album_description(), "This is an album")
