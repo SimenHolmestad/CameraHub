@@ -69,9 +69,17 @@ class FolderAlbum(BaseAlbum):
         next_image_name = self.current_image_tracker.get_next_image_name(
             camera_module.file_extension
         )
-
         next_image_filepath = self.images_folder.get_path_to_file(next_image_name)
-        camera_module.try_capture_image(next_image_filepath)
+
+        if camera_module.needs_raw_file_transfer:
+            raw_image_folder = Folder(self.album_folder.get_path(), "raw_images")
+            raw_image_name = self.current_image_tracker.get_next_image_name(
+                camera_module.raw_file_extension
+            )
+            raw_image_filepath = raw_image_folder.get_path_to_file(raw_image_name)
+            camera_module.try_capture_image(next_image_filepath, raw_image_filepath)
+        else:
+            camera_module.try_capture_image(next_image_filepath)
 
         self.__create_thumbnail_for_image(next_image_name)
         self.current_image_tracker.increase_image_number()

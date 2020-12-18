@@ -4,7 +4,7 @@ import os
 import json
 from backend.album_storage.folder_album_handler import FolderAlbumHandler
 from backend.app import create_app
-from .camera_modules_for_testing import create_fast_dummy_module, create_faulty_camera_module
+from .camera_modules_for_testing import create_fast_dummy_module, FaultyCameraModule
 
 
 class AlbumApiTestCase(unittest.TestCase):
@@ -166,7 +166,7 @@ class AlbumApiTestCase(unittest.TestCase):
         })
 
     def test_unsuccessful_image_capture_response(self):
-        self.create_app_and_client_with_camera_module(create_faulty_camera_module())
+        self.create_app_and_client_with_camera_module(FaultyCameraModule())
         self.create_temp_album("album1")
         json_response = self.test_client.post(
             "/albums/album1",

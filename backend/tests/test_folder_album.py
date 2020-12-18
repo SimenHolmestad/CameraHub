@@ -4,7 +4,7 @@ import unittest
 import tempfile
 from backend.album_storage.folder_album import FolderAlbum
 from backend.album_storage.folder import Folder
-from .camera_modules_for_testing import create_fast_dummy_module
+from .camera_modules_for_testing import create_fast_dummy_module, DummyRawModule
 
 
 class FolderAlbumTestCase(unittest.TestCase):
@@ -179,6 +179,26 @@ class FolderAlbumTestCase(unittest.TestCase):
         )
 
         self.assertTrue(os.path.exists(expected_thumbnail_filepath))
+
+    def test_capture_image_with_camera_module_requiring_raw_image_transfer(self):
+        raw_module = DummyRawModule()
+        self.album.try_capture_image_to_album(raw_module)
+
+        expected_image_filepath = os.path.join(
+            self.test_dir_name,
+            "test_album",
+            "images",
+            "image0001.png"
+        )
+        self.assertTrue(os.path.exists(expected_image_filepath))
+
+        expected_raw_image_filepath = os.path.join(
+            self.test_dir_name,
+            "test_album",
+            "raw_images",
+            "image0001.cr2"
+        )
+        self.assertTrue(os.path.exists(expected_raw_image_filepath))
 
     def test_ensure_thumbnails_correct(self):
         camera_module = create_fast_dummy_module()
