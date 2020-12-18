@@ -9,15 +9,12 @@ from .test_utils import create_fast_dummy_module
 
 class AppTestCase(unittest.TestCase):
     def setUp(self):
-        # Create a new album directory so that the "albums" directory
-        # is left untouched while testing.
+        # Creates a temporary static dir which is deleted after every test
         self.static_dir = tempfile.TemporaryDirectory(dir=".")
         self.static_dir_name = self.static_dir.name.split("./")[1]
         self.album_dir_path = os.path.join(self.static_dir_name, "albums")
-        os.makedirs(self.album_dir_path)
 
         self.camera_module = create_fast_dummy_module()
-
         self.album_handler = FolderAlbumHandler(self.static_dir_name, "albums")
         self.app = create_app(self.album_handler, self.static_dir_name, self.camera_module)
 
@@ -26,41 +23,11 @@ class AppTestCase(unittest.TestCase):
 
     def create_temp_album(self, album_name, description=""):
         """Create an album with the specified name and description."""
-        album_directory_path = os.path.join(
-            self.album_dir_path,
-            album_name)
-
-        os.makedirs(os.path.join(
-            album_directory_path,
-            "images"
-        ))
-
-        os.makedirs(os.path.join(
-            album_directory_path,
-            "thumbnails"
-        ))
-
-        if description != "":
-            description_file_path = os.path.join(album_directory_path, "description.txt")
-            f = open(description_file_path, "w")
-            f.write(description)
-            f.close()
+        self.album_handler.get_or_create_album(album_name, description)
 
     def add_dummy_image_file_to_album(self, album_name):
-        """Create a dummy image file with the specified name to the specified album. """
         album = self.album_handler.get_album(album_name)
         album.try_capture_image_to_album(self.camera_module)
-
-    def create_current_image_number_file(self, album_name, current_image_number):
-        current_image_number_file_path = os.path.join(
-            self.album_dir_path,
-            album_name,
-            ".current_image_number.txt"
-        )
-
-        f = open(current_image_number_file_path, "w")
-        f.write(str(current_image_number))
-        f.close()
 
     def test_list_albums(self):
         self.create_temp_album("album1")
