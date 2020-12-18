@@ -4,7 +4,7 @@ import os
 import json
 from backend.album_storage.folder_album_handler import FolderAlbumHandler
 from backend.app import create_app
-from .test_utils import create_fast_dummy_module
+from .camera_modules_for_testing import create_fast_dummy_module, create_faulty_camera_module
 
 
 class AlbumApiTestCase(unittest.TestCase):
@@ -15,8 +15,11 @@ class AlbumApiTestCase(unittest.TestCase):
         self.album_dir_path = os.path.join(self.static_dir_name, "albums")
 
         self.camera_module = create_fast_dummy_module()
+        self.create_app_and_client_with_camera_module(self.camera_module)
+
+    def create_app_and_client_with_camera_module(self, camera_module):
         self.album_handler = FolderAlbumHandler(self.static_dir_name, "albums")
-        app = create_app(self.album_handler, self.static_dir_name, self.camera_module)
+        app = create_app(self.album_handler, self.static_dir_name, camera_module)
         self.test_client = app.test_client()
 
     def tearDown(self):
@@ -161,6 +164,16 @@ class AlbumApiTestCase(unittest.TestCase):
             'success': 'Image successfully captured',
             'thumbnail_url': "/{}/albums/album1/thumbnails/image0001.jpg".format(self.static_dir_name)
         })
+
+    def test_unsuccessful_image_capture_response(self):
+        self.create_app_and_client_with_camera_module(create_faulty_camera_module())
+        self.create_temp_album("album1")
+        json_response = self.test_client.post(
+            "/albums/album1",
+            content_type='application/json',
+            follow_redirects=True
+        ).json
+        self.assertEqual(json_response, {'error': 'This is a test error message'})
 
     def test_get_last_image_for_album_on_empty_album(self):
         self.create_temp_album("album1")

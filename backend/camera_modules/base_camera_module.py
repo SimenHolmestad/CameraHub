@@ -6,14 +6,16 @@ class BaseCameraModule(ABC):
 
     def __init__(self, file_extension, needs_raw_folder=False):
         self.file_extension = file_extension
-        self.need_raw_files = needs_raw_folder
+        self.need_raw_folder = needs_raw_folder
 
     @abstractmethod
     def try_capture_image(self, image_path, raw_file_folder=None):
         """Method for capturing image and storing it in image_path. Should
-        raise IOError if something goes wrong with capture.
-
-        It should not be necessary to use this function directly. Use
-        try_capture_image instead.
+        raise ImageCaptureError with and error message if something
+        goes wrong with capture.
         """
         pass
+
+
+class ImageCaptureError(RuntimeError):
+    pass

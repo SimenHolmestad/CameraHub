@@ -4,7 +4,7 @@ import unittest
 import tempfile
 from backend.album_storage.folder_album_handler import FolderAlbumHandler, AlbumNotFoundError
 from backend.album_storage.base_album import BaseAlbum
-from .test_utils import create_fast_dummy_module
+from .camera_modules_for_testing import create_fast_dummy_module
 
 
 class FolderAlbumHandlerTestCase(unittest.TestCase):

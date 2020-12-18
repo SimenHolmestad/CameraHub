@@ -1,4 +1,5 @@
 from flask import Blueprint, request, url_for, jsonify
+from backend.camera_modules.base_camera_module import ImageCaptureError
 
 
 def construct_album_api_blueprint(album_handler, camera_module):
@@ -40,7 +41,7 @@ def construct_album_api_blueprint(album_handler, camera_module):
             return jsonify({"error": error_message})
 
         if request.method == "POST":
-            return capture_image_to_album(album_name)
+            return try_capture_image_to_album(album_name)
 
         return get_album_information(album_name)
 
@@ -82,6 +83,14 @@ def construct_album_api_blueprint(album_handler, camera_module):
     def get_available_albums(request):
         album_names = album_handler.get_available_album_names()
         return jsonify({"available_albums": album_names})
+
+    def try_capture_image_to_album(album_name):
+        try:
+            return capture_image_to_album(album_name)
+        except ImageCaptureError as e:
+            return jsonify({
+                "error": str(e)
+            })
 
     def capture_image_to_album(album_name):
         album = album_handler.get_album(album_name)

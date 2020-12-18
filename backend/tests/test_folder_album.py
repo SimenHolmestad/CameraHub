@@ -4,7 +4,7 @@ import unittest
 import tempfile
 from backend.album_storage.folder_album import FolderAlbum
 from backend.album_storage.folder import Folder
-from .test_utils import create_fast_dummy_module
+from .camera_modules_for_testing import create_fast_dummy_module
 
 
 class FolderAlbumTestCase(unittest.TestCase):

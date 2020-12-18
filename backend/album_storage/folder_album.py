@@ -60,6 +60,12 @@ class FolderAlbum(BaseAlbum):
         )
 
     def try_capture_image_to_album(self, camera_module):
+        """Tries to capture an image to the album using the specified camera
+        module.
+
+        As this method calls the try_capture_image method of the
+        camera_module, an ImageCaptureError might be raised.
+        """
         next_image_name = self.current_image_tracker.get_next_image_name(
             camera_module.file_extension
         )
