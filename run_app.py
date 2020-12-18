@@ -7,11 +7,10 @@ import qrcode
 import json
 from backend.app import create_app
 from backend.camera_module_options import get_camera_module_name_options, get_instance_of_camera_module_by_name
-from backend.utils.thumbnail_utils import create_thumbnails_for_all_albums
+from backend.album_storage.folder_album_handler import FolderAlbumHandler
 
 STATIC_FOLDER_NAME = "static"
 STATIC_FOLDER_PATH = os.path.join("backend", STATIC_FOLDER_NAME)
-ALBUM_DIR_PATH = os.path.join(STATIC_FOLDER_PATH, "albums")
 
 
 def find_ip_address_for_device():
@@ -127,7 +126,7 @@ def run_frontend(host_ip):
     return npm_process
 
 
-def run_application(camera_module):
+def run_application(album_handler, camera_module):
     host_ip = find_ip_address_for_device()
 
     npm_process = run_frontend(host_ip)
@@ -150,7 +149,7 @@ def run_application(camera_module):
     browser_process = open_webpage_in_device_browser(start_page_qr_code_url)
 
     # Run app
-    app = create_app(STATIC_FOLDER_NAME, STATIC_FOLDER_PATH, camera_module)
+    app = create_app(album_handler, STATIC_FOLDER_NAME, camera_module)
     app.run(host=host_ip)
 
     # Delete browser process if it was created
@@ -160,7 +159,7 @@ def run_application(camera_module):
     npm_process.terminate()
 
 
-def run_backend_in_debug_mode(camera_module):
+def run_backend_in_debug_mode(album_handler, camera_module):
     """Runs the backend in debug mode.
 
     This should only need to be done when working on or testing the
@@ -175,7 +174,7 @@ def run_backend_in_debug_mode(camera_module):
     generate_and_save_qr_codes(STATIC_FOLDER_PATH, start_page_url)
 
     # Run app
-    app = create_app(STATIC_FOLDER_NAME, STATIC_FOLDER_PATH, camera_module)
+    app = create_app(album_handler, STATIC_FOLDER_NAME, camera_module)
     app.run(debug=True, host="localhost")
 
 
@@ -190,27 +189,17 @@ def parse_command_line_args():
     return parser.parse_args()
 
 
-def ensure_files_and_folders_are_created():
-    if not os.path.exists(ALBUM_DIR_PATH):
-        print("Creating album folder")
-        os.makedirs(ALBUM_DIR_PATH)
-
-    print("Creating missing thumbnails for all albums")
-    create_thumbnails_for_all_albums(ALBUM_DIR_PATH)
-
-
 def initialize_application():
     """Run the flask application."""
     args = parse_command_line_args()
 
-    ensure_files_and_folders_are_created()
-
-    camera_module = get_instance_of_camera_module_by_name(args.camera_module, ALBUM_DIR_PATH)
+    camera_module = get_instance_of_camera_module_by_name(args.camera_module)
+    album_handler = FolderAlbumHandler(STATIC_FOLDER_PATH, "albums")
 
     if args.debug:
-        run_backend_in_debug_mode(camera_module)
+        run_backend_in_debug_mode(album_handler, camera_module)
     else:
-        run_application(camera_module)
+        run_application(album_handler, camera_module)
 
 
 if __name__ == '__main__':
