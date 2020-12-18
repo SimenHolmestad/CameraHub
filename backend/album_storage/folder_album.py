@@ -63,23 +63,15 @@ class FolderAlbum(BaseAlbum):
         """Tries to capture an image to the album using the specified camera
         module.
 
-        As this method calls the try_capture_image method of the
+        As this method will call the try_capture_image method of the
         camera_module, an ImageCaptureError might be raised.
         """
-        next_image_name = self.current_image_tracker.get_next_image_name(
-            camera_module.file_extension
-        )
-        next_image_filepath = self.images_folder.get_path_to_file(next_image_name)
+        next_image_name = self.__get_next_image_name_with_extension(camera_module.file_extension)
 
         if camera_module.needs_raw_file_transfer:
-            raw_image_folder = Folder(self.album_folder.get_path(), "raw_images")
-            raw_image_name = self.current_image_tracker.get_next_image_name(
-                camera_module.raw_file_extension
-            )
-            raw_image_filepath = raw_image_folder.get_path_to_file(raw_image_name)
-            camera_module.try_capture_image(next_image_filepath, raw_image_filepath)
+            self.__try_capture_image_with_raw_file_transfer(camera_module)
         else:
-            camera_module.try_capture_image(next_image_filepath)
+            self.__try_capture_image(camera_module)
 
         self.__create_thumbnail_for_image(next_image_name)
         self.current_image_tracker.increase_image_number()
@@ -131,3 +123,20 @@ class FolderAlbum(BaseAlbum):
             filenames
         ))
         return relative_urls
+
+    def __get_next_image_name_with_extension(self, extension):
+        return self.current_image_tracker.get_next_image_name(extension)
+
+    def __get_next_image_path(self, folder, extension):
+        image_name = self.__get_next_image_name_with_extension(extension)
+        return folder.get_path_to_file(image_name)
+
+    def __try_capture_image_with_raw_file_transfer(self, camera_module):
+        raw_image_folder = Folder(self.album_folder.get_path(), "raw_images")
+        raw_image_filepath = self.__get_next_image_path(raw_image_folder, camera_module.raw_file_extension)
+        next_image_filepath = self.__get_next_image_path(self.images_folder, camera_module.file_extension)
+        camera_module.try_capture_image(next_image_filepath, raw_image_filepath)
+
+    def __try_capture_image(self, camera_module):
+        next_image_filepath = self.__get_next_image_path(self.images_folder, camera_module.file_extension)
+        camera_module.try_capture_image(next_image_filepath)
