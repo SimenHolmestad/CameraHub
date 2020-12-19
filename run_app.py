@@ -3,11 +3,11 @@ import socket
 import subprocess
 import platform
 import argparse
-import qrcode
 import json
 from backend.app import create_app
 from backend.camera_module_options import get_camera_module_name_options, get_instance_of_camera_module_by_name
 from backend.album_storage.folder_album_handler import FolderAlbumHandler
+from backend.qr_code_api.qr_code_handler import QrCodeHandler
 
 STATIC_FOLDER_NAME = "static"
 STATIC_FOLDER_PATH = os.path.join("backend", STATIC_FOLDER_NAME)
@@ -41,53 +41,45 @@ def open_webpage_in_device_browser(url):
     return None
 
 
-def generate_qr_code(file_path, content):
-    """Generate a QR-code at <file_path> with the contents of
-    <content>.
-    """
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
-        border=4,
-    )
-
-    qr.add_data(content)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
-    img.save(file_path)
-
-
-def generate_and_save_qr_codes(static_folder_name, start_page_url):
-    """Creates an album containing QR codes related to the application."""
-    # Create qr-code album if it does not exist.
-    QR_CODE_FOLDER_NAME = "qr_codes"
-    qr_code_folder_path = os.path.join(static_folder_name, QR_CODE_FOLDER_NAME)
-    if not os.path.exists(qr_code_folder_path):
-        os.makedirs(qr_code_folder_path)
-
-    # Create QR code for start page
-    start_page_qr_code_file_path = os.path.join(
-        qr_code_folder_path,
-        "start_page_qr_code.png"
-    )
-    generate_qr_code(start_page_qr_code_file_path, start_page_url)
-
-    # Create QR code for joining wifi network if the file network_details.json exists
+def add_wifi_qr_code_if_network_details_file_exists(qr_code_handler):
     if os.path.exists("network_details.json"):
         f = open("network_details.json", "r")
         content = json.loads(f.read())
         f.close()
-        wifi_name = content["wifi_name"]
-        wifi_protocol = content["wifi_protocol"]
-        wifi_password = content["wifi_password"]
-
-        wifi_qr_code_content = F"WIFI:S:{wifi_name};T:{wifi_protocol};P:{wifi_password};;"
-        wifi_qr_code_file_path = os.path.join(
-            qr_code_folder_path,
-            "wifi_qr_code.png"
+        qr_code_handler.add_wifi_qr_code(
+            "wifi_qr_code",
+            content["wifi_name"],
+            content["wifi_protocol"],
+            content["wifi_password"],
+            content["description"]
         )
-        generate_qr_code(wifi_qr_code_file_path, wifi_qr_code_content)
+
+
+def create_qr_code_handler_with_qr_codes():
+    qr_code_handler = QrCodeHandler(STATIC_FOLDER_PATH)
+
+    start_page_url = "http://{}:3000/".format(find_ip_address_for_device())
+    qr_code_handler.add_url_qr_code(
+        "start_page_url",
+        start_page_url,
+        "Scan this qr code to go to CameraHub!"
+    )
+
+    add_wifi_qr_code_if_network_details_file_exists(qr_code_handler)
+    return qr_code_handler
+
+
+def get_absolute_url_for_qr_code(qr_code, host_ip):
+    return "http://" + host_ip + ":5000/static/" + qr_code.get_relative_url()
+
+
+def print_qr_code_urls(qr_code_handler, host_ip):
+    for qr_code in qr_code_handler.get_qr_codes():
+        print("---------------------------")
+        print("Url for accessing qr code:", qr_code.get_name())
+        print(get_absolute_url_for_qr_code(qr_code, host_ip))
+        print()
+    print("---------------------------")
 
 
 def change_frontend_proxy_config(host_ip):
@@ -126,30 +118,24 @@ def run_frontend(host_ip):
     return npm_process
 
 
-def run_application(album_handler, camera_module):
+def run_application(album_handler, camera_module, qr_code_handler):
     host_ip = find_ip_address_for_device()
-
     npm_process = run_frontend(host_ip)
-
-    # Print QR code URLs to console
-    start_page_qr_code_url = "http://" + host_ip + ":5000/static/qr_codes/start_page_qr_code.png"
-    print("Url for start page QR code:", start_page_qr_code_url)
-    wifi_qr_code_url = "http://" + host_ip + ":5000/static/qr_codes/wifi_qr_code.png"
-    print("Url for wifi QR code (if it exists):", wifi_qr_code_url)
+    print_qr_code_urls(qr_code_handler, host_ip)
 
     # NOTE: start_page_qr_code_url should be changed to an actual
-    # webpage displaying both QR codes when a front-end is developed
+    # webpage displaying both qr codes when a front-end is developed
     # in the future.
-
-    # Create QR codes
-    start_page_url = "http://{}:3000/".format(host_ip)
-    generate_and_save_qr_codes(STATIC_FOLDER_PATH, start_page_url)
+    start_page_qr_code_url = get_absolute_url_for_qr_code(
+        qr_code_handler.get_qr_codes()[0],
+        host_ip
+    )
 
     # Open qr-code page in browser
     browser_process = open_webpage_in_device_browser(start_page_qr_code_url)
 
     # Run app
-    app = create_app(album_handler, STATIC_FOLDER_NAME, camera_module)
+    app = create_app(album_handler, STATIC_FOLDER_NAME, camera_module, qr_code_handler)
     app.run(host=host_ip)
 
     # Delete browser process if it was created
@@ -159,22 +145,18 @@ def run_application(album_handler, camera_module):
     npm_process.terminate()
 
 
-def run_backend_in_debug_mode(album_handler, camera_module):
+def run_backend_in_debug_mode(album_handler, camera_module, qr_code_handler):
     """Runs the backend in debug mode.
 
     This should only need to be done when working on or testing the
     frontend.
     """
     print("Running the backend in debug mode. Start the frontend in a separate terminal window")
-
     change_frontend_proxy_config("localhost")
-
-    # Create QR codes
-    start_page_url = "http://{}:3000/".format(find_ip_address_for_device())
-    generate_and_save_qr_codes(STATIC_FOLDER_PATH, start_page_url)
+    print_qr_code_urls(qr_code_handler, "localhost")
 
     # Run app
-    app = create_app(album_handler, STATIC_FOLDER_NAME, camera_module)
+    app = create_app(album_handler, STATIC_FOLDER_NAME, camera_module, qr_code_handler)
     app.run(debug=True, host="localhost")
 
 
@@ -195,11 +177,12 @@ def initialize_application():
 
     camera_module = get_instance_of_camera_module_by_name(args.camera_module)
     album_handler = FolderAlbumHandler(STATIC_FOLDER_PATH, "albums")
+    qr_code_handler = create_qr_code_handler_with_qr_codes()
 
     if args.debug:
-        run_backend_in_debug_mode(album_handler, camera_module)
+        run_backend_in_debug_mode(album_handler, camera_module, qr_code_handler)
     else:
-        run_application(album_handler, camera_module)
+        run_application(album_handler, camera_module, qr_code_handler)
 
 
 if __name__ == '__main__':
