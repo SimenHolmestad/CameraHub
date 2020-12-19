@@ -172,7 +172,8 @@ If a QR code for connecting to wifi is desired, such a QR code will be generated
 {
   "wifi_name": "my_wifi_SSID",
   "wifi_protocol": "WPA/WPA2",
-  "wifi_password": "my_super_secret_password"
+  "wifi_password": "my_super_secret_password",
+  "description": "Scan qr code to connect to my_wifi_SSID!"
 }
 ```
 

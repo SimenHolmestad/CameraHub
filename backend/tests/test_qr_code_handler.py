@@ -121,6 +121,75 @@ class QrCodeHandlerTestCase(unittest.TestCase):
             "WIFI:S:my_netwok_ssid;T:WPA/WPA2;P:my_super_secret_password;;"
         )
 
+    def test_get_qr_code_urls_as_strings_with_one_qr_code(self):
+        self.qr_code_handler.add_url_qr_code(
+            "test_url_qr_code",
+            "www.test.com",
+            "Scan this qr code to go to www.test.com!"
+        )
+        self.assertEqual(
+            self.qr_code_handler.get_qr_code_urls_as_strings("localhost"),
+            ['For accessing test_url_qr_code : http://localhost:5000/static/qr_codes/test_url_qr_code.png']
+        )
+
+    def test_get_qr_code_urls_as_strings_with_two_qr_codes(self):
+        self.qr_code_handler.add_url_qr_code(
+            "test_url_qr_code",
+            "www.test.com",
+            "Scan this qr code to go to www.test.com!"
+        )
+        self.qr_code_handler.add_wifi_qr_code(
+            "wifi_qr_code",
+            "my_netwok_ssid",
+            "WPA/WPA2",
+            "my_super_secret_password",
+            "Scan this qr code to connect to the wifi!"
+        )
+        self.assertEqual(
+            self.qr_code_handler.get_qr_code_urls_as_strings("localhost"),
+            ['For accessing test_url_qr_code : http://localhost:5000/static/qr_codes/test_url_qr_code.png',
+             'For accessing wifi_qr_code : http://localhost:5000/static/qr_codes/wifi_qr_code.png']
+        )
+
+    def test_create_qr_code_handler_when_network_details_do_not_exist(self):
+        # We need to go down a directory as network_details.json might
+        # exist in the top dir of the project
+        os.chdir(self.static_test_dir_name)
+
+        qr_code_handler = QrCodeHandler.create_qr_code_handler_with_qr_codes(
+            self.static_test_dir_name,
+            "192.168.0.1"
+        )
+        qr_codes = qr_code_handler.get_qr_codes()
+        self.assertEqual(len(qr_codes), 1)
+        self.assertEqual(qr_codes[0].get_name(), "start_page_url")
+        os.chdir("./..")
+
+    def test_create_qr_code_handler_when_network_details_do_exist(self):
+        # We need to go down a directory so network_details.json does
+        # not get overwritten in the top directory
+        os.chdir(self.static_test_dir_name)
+
+        with open("network_details.json", "w") as f:
+            f.write("""{
+            "wifi_name": "my_wifi_SSID",
+            "wifi_protocol": "WPA/WPA2",
+            "wifi_password": "my_super_secret_password",
+            "description": "Scan qr code to connect to my_wifi_SSID!"
+            }
+            """)
+
+        qr_code_handler = QrCodeHandler.create_qr_code_handler_with_qr_codes(
+            self.static_test_dir_name,
+            "192.168.0.1"
+        )
+        qr_codes = qr_code_handler.get_qr_codes()
+        self.assertEqual(len(qr_codes), 2)
+        self.assertEqual(qr_codes[0].get_name(), "start_page_url")
+        self.assertEqual(qr_codes[1].get_name(), "wifi_qr_code")
+
+        os.chdir("./..")
+
 
 if __name__ == '__main__':
     unittest.main()
