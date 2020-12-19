@@ -123,4 +123,4 @@ def construct_album_api_blueprint(album_handler, camera_module):
     def create_static_url_list(relative_url_list):
         return list(map(create_static_url, relative_url_list))
 
-    return(album_api_blueprint)
+    return album_api_blueprint

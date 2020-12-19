@@ -2,8 +2,9 @@ import unittest
 import tempfile
 import os
 import json
-from backend.album_storage.folder_album_handler import FolderAlbumHandler
 from backend.app import create_app
+from backend.album_storage.folder_album_handler import FolderAlbumHandler
+from backend.qr_code_api.qr_code_handler import QrCodeHandler
 from .camera_modules_for_testing import create_fast_dummy_module, FaultyCameraModule
 
 
@@ -19,7 +20,8 @@ class AlbumApiTestCase(unittest.TestCase):
 
     def create_app_and_client_with_camera_module(self, camera_module):
         self.album_handler = FolderAlbumHandler(self.static_dir_name, "albums")
-        app = create_app(self.album_handler, self.static_dir_name, camera_module)
+        qr_code_handler = QrCodeHandler(self.static_dir_name)
+        app = create_app(self.album_handler, self.static_dir_name, camera_module, qr_code_handler)
         self.test_client = app.test_client()
 
     def tearDown(self):

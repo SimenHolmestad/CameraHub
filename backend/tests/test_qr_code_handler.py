@@ -102,7 +102,8 @@ class QrCodeHandlerTestCase(unittest.TestCase):
             "my_netwok_ssid",
             "WPA/WPA2",
             "my_super_secret_password",
-            "Scan this qr code to connect to the wifi!")
+            "Scan this qr code to connect to the wifi!"
+        )
         qr_code_filepath = os.path.join(
             self.static_test_dir_name,
             "qr_codes",
