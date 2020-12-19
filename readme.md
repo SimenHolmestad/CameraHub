@@ -195,6 +195,8 @@ Currently, only the backend code is tested. To run the backend tests, navigate t
 python3 -m unittest
 ```
 
+The test uses pyzbar to check if the qr-codes are generated correctly. To install pyzbar correctly, check <https://pypi.org/project/pyzbar/>.
+
 # Design
 The design of the frontend is done using [Material UI](https://material-ui.com/), and the main layout is heavily inspired by (stolen from) the [album example](https://material-ui.com/getting-started/templates/album/) at [the Material UI template page](https://material-ui.com/getting-started/templates/).
 
