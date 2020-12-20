@@ -7,8 +7,8 @@ class DSLRRawModule(BaseDSLRModule):
     camera, but not on the Raspberry PI
     """
 
-    def __init__(self, album_dir_name):
-        super().__init__(album_dir_name)
+    def __init__(self):
+        super().__init__()
 
         # To get both raw images and jpg images, the capture target
         # needs to be 1 so that both images are transferred to the

@@ -13,13 +13,12 @@ class DSLRRawTransferModule(BaseDSLRModule):
         # camera's SD card
         self.set_capture_target(1)
 
-    def capture_dslr_image(self, camera, image_path):
+    def capture_dslr_image(self, camera, image_path, raw_image_path):
         # camera.capture returns the file path of the raw image
         camera_file_path = camera.capture(gp.GP_CAPTURE_IMAGE)
 
-        # Save raw file to the raw_images folder in the album
         if "CR2" in camera_file_path.name:
-            self.save_raw_file(image_path, camera, camera_file_path)
+            self.save_raw_image(raw_image_path, camera, camera_file_path)
 
         # The jpg filename is the same as raw but with .JPG extension
         jpg_filename = camera_file_path.name.replace("CR2", "JPG")
