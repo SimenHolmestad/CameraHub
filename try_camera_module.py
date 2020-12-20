@@ -14,6 +14,7 @@ python3 test_camera_module.py -h
 import os
 import argparse
 from backend.camera_module_options import get_camera_module_name_options, get_instance_of_camera_module_by_name
+from backend.album_storage.folder_album_handler import FolderAlbumHandler
 ALBUM_DIR_NAME = "test_albums"
 
 
@@ -31,23 +32,17 @@ def ensure_album_directory_exists():
         os.makedirs(ALBUM_DIR_NAME)
 
 
-def ensure_album_exists(album_name):
-    path_to_album = os.path.join(ALBUM_DIR_NAME, album_name)
-    if not os.path.exists(path_to_album):
-        os.makedirs(path_to_album)
-        os.makedirs(os.path.join(path_to_album, "images"))
-
-
 def test_camera_module():
     args = parse_command_line_args()
 
     ensure_album_directory_exists()
-    album_name = args.camera_module + "_images"
-    ensure_album_exists(album_name)
+    album_handler = FolderAlbumHandler(".", "test_albums")
 
-    camera_module = get_instance_of_camera_module_by_name(args.camera_module, ALBUM_DIR_NAME)
+    album_name = args.camera_module + "_album"
+    album = album_handler.get_or_create_album(album_name)
 
-    camera_module.try_capture_image_to_album(album_name)
+    camera_module = get_instance_of_camera_module_by_name(args.camera_module)
+    album.try_capture_image_to_album(camera_module)
 
 
 if __name__ == '__main__':
