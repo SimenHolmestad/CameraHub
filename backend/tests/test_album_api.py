@@ -57,7 +57,7 @@ class AlbumApiTestCase(unittest.TestCase):
         }
         # This request should create the album specified with PARAMS
         json_response = self.test_client.post(
-            '/albums',
+            '/albums/',
             data=json.dumps(PARAMS),
             content_type='application/json',
             follow_redirects=True
@@ -75,7 +75,7 @@ class AlbumApiTestCase(unittest.TestCase):
             "description": "A very nice album indeed"
         }
         self.test_client.post(
-            '/albums',
+            '/albums/',
             data=json.dumps(PARAMS),
             content_type='application/json',
             follow_redirects=True
@@ -98,7 +98,7 @@ class AlbumApiTestCase(unittest.TestCase):
         }
         # This request should update the album description
         json_response = self.test_client.post(
-            '/albums',
+            '/albums/',
             data=json.dumps(PARAMS),
             content_type='application/json',
             follow_redirects=True).json

@@ -8,7 +8,7 @@ def construct_album_api_blueprint(album_handler, camera_module):
     """
     album_api_blueprint = Blueprint("albums", __name__)
 
-    @album_api_blueprint.route("/", methods=["GET", "post"])
+    @album_api_blueprint.route("/", methods=["GET", "POST"])
     def available_albums():
         """An endpoint for listing albums and create new albums.
 
