@@ -5,8 +5,8 @@ import gphoto2 as gp
 class DSLRRawTransferModule(BaseDSLRModule):
     """A dslr module where raw images are stored on the Raspberry PI"""
 
-    def __init__(self, album_dir_name):
-        super().__init__(album_dir_name)
+    def __init__(self):
+        super().__init__(needs_raw_file_transfer=True, raw_file_extension=".cr2")
 
         # To get both raw images and jpg images, the capture target
         # needs to be 1 so that both images are transferred to the

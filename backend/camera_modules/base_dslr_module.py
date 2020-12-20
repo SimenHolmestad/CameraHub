@@ -10,8 +10,8 @@ import os
 class BaseDSLRModule(BaseCameraModule, ABC):
     """Camera module provinging basic DSLR functionality using GPhoto2"""
 
-    def __init__(self):
-        super().__init__(".jpg")
+    def __init__(self, **kwargs):
+        super().__init__(".jpg", **kwargs)
         camera = gp.Camera()
         print("Please connect and switch on your DSLR Camera")
         while True:

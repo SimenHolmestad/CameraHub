@@ -7,8 +7,8 @@ import time
 class DSLRJpgModule(BaseDSLRModule):
     """A dslr module where no raw images are stored"""
 
-    def __init__(self, album_dir_name):
-        super().__init__(album_dir_name)
+    def __init__(self):
+        super().__init__()
 
         # For maximum speed, we set capture target to 0, so that the
         # jpg image is not written to the SD card before being written
@@ -24,7 +24,7 @@ class DSLRJpgModule(BaseDSLRModule):
         print("---------------------------------------------------")
         time.sleep(2)
 
-    def capture_dslr_image(self, camera, image_path):
+    def capture_dslr_image(self, camera, image_path, raw_image_path=None):
         # camera.capture should return the file path of the jpg image
         camera_file_path = camera.capture(gp.GP_CAPTURE_IMAGE)
 

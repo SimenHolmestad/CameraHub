@@ -15,7 +15,7 @@ class DSLRRawModule(BaseDSLRModule):
         # camera's SD card
         self.set_capture_target(1)
 
-    def capture_dslr_image(self, camera, image_path):
+    def capture_dslr_image(self, camera, image_path, raw_image_path=None):
         # camera.capture returns the file path of the raw image
         camera_file_path = camera.capture(gp.GP_CAPTURE_IMAGE)
 
