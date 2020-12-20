@@ -107,7 +107,7 @@ The camera module is the part of the system which handles image capturing. If Ca
 
 It is possible to test a camera module without running the app by doing:
 ```
-python3 test_camera_module.py <name_of_module>
+python3 try_camera_module.py <name_of_module>
 ```
 Doing this will create a folder named `test_albums` which will contain the image files created.
 
@@ -172,7 +172,8 @@ If a QR code for connecting to wifi is desired, such a QR code will be generated
 {
   "wifi_name": "my_wifi_SSID",
   "wifi_protocol": "WPA/WPA2",
-  "wifi_password": "my_super_secret_password"
+  "wifi_password": "my_super_secret_password",
+  "description": "Scan qr code to connect to my_wifi_SSID!"
 }
 ```
 
@@ -190,10 +191,12 @@ This will show a page containing the last image added to the album in fullscreen
 There is currently no way to reach this page for "normal users" without altering the url.
 
 # Running the tests
-Currently, only the backend code is tested. To run the tests, go to the top directory and do:
+Currently, only the backend code is tested. To run the backend tests, navigate to the root directory of the project and do:
 ```
-python3 -m backend.test_backend
+python3 -m unittest
 ```
+
+The test uses pyzbar to check if the qr-codes are generated correctly. To install pyzbar correctly, check <https://pypi.org/project/pyzbar/>.
 
 # Design
 The design of the frontend is done using [Material UI](https://material-ui.com/), and the main layout is heavily inspired by (stolen from) the [album example](https://material-ui.com/getting-started/templates/album/) at [the Material UI template page](https://material-ui.com/getting-started/templates/).

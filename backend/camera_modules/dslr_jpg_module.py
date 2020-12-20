@@ -1,4 +1,5 @@
 from .base_dslr_module import BaseDSLRModule
+from .base_camera_module import ImageCaptureError
 import gphoto2 as gp
 import time
 
@@ -30,6 +31,7 @@ class DSLRJpgModule(BaseDSLRModule):
         if "CR2" in camera_file_path.name:
             print("Raw image captured when using JPG module!")
             print("Set camera to only capture jpg files and restart server.")
+            raise ImageCaptureError("Camera was set to RAW but should have been .jpg")
 
         # Transfer the jpg file from the camera to image_path
         self.save_jpg_file(image_path, camera, camera_file_path.folder, camera_file_path.name)

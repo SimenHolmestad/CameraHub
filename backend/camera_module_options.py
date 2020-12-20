@@ -27,8 +27,8 @@ def get_camera_module_name_options():
     return list(CAMERA_MODULE_OPTIONS.keys())
 
 
-def get_instance_of_camera_module_by_name(module_name, album_dir_path):
+def get_instance_of_camera_module_by_name(module_name):
     if module_name not in get_camera_module_name_options():
         raise CameraModuleNotFoundError
 
-    return CAMERA_MODULE_OPTIONS[module_name](album_dir_path)
+    return CAMERA_MODULE_OPTIONS[module_name]()
