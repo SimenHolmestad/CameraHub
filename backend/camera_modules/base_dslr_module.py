@@ -40,7 +40,7 @@ class BaseDSLRModule(BaseCameraModule, ABC):
         """
         pass
 
-    def try_capture_image(self, image_path, raw_image_path=None):
+    def capture_image(self, image_path, raw_image_path=None):
         """Captures an image and saves it in "image_path"."""
         start_time = time.time()
         camera = gp.Camera()

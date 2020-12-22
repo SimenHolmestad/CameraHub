@@ -48,7 +48,7 @@ class DummyCameraModule(BaseCameraModule):
                     image[y, x, 2] = b
         return image
 
-    def try_capture_image(self, image_path):
+    def capture_image(self, image_path, raw_file_path=None):
         """Creates an image and saves it in "image_path"."""
         # Create white image
         image = np.full((self.height, self.width, 3), 255, dtype=np.uint8)

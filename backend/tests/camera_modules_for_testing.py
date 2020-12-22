@@ -21,7 +21,7 @@ class FaultyCameraModule(BaseCameraModule):
     def __init__(self):
         super().__init__(".jpg")
 
-    def try_capture_image(self, image_path):
+    def capture_image(self, image_path, raw_file_path=None):
         raise ImageCaptureError("This is a test error message")
 
 
@@ -36,6 +36,6 @@ class DummyRawModule(BaseCameraModule):
         super().__init__(".png", needs_raw_file_transfer=True, raw_file_extension=".cr2")
         self.dummy_module = create_fast_dummy_module()
 
-    def try_capture_image(self, image_path, raw_file_path):
+    def capture_image(self, image_path, raw_file_path):
         self.dummy_module.try_capture_image(image_path)
         copyfile(image_path, raw_file_path)

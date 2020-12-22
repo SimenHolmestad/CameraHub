@@ -8,6 +8,6 @@ class RPICameraModule(BaseCameraModule):
     def __init__(self):
         super().__init__(".jpg")
 
-    def try_capture_image(self, image_path):
+    def capture_image(self, image_path, raw_file_path=None):
         """Creates an image and saves it in "image_path"."""
         subprocess.run(["raspistill", "-f", "-vf", "-o", image_path])
