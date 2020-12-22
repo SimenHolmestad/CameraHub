@@ -20,7 +20,8 @@ def initialize_application():
     album_handler = FolderAlbumHandler(STATIC_FOLDER_PATH, "albums")
     qr_code_handler = QrCodeHandler.create_qr_code_handler_with_qr_codes(
         STATIC_FOLDER_PATH,
-        find_ip_address_for_device()
+        find_ip_address_for_device(),
+        use_center_images=True
     )
 
     if args.debug:

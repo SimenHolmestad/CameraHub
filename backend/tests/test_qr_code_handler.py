@@ -121,6 +121,53 @@ class QrCodeHandlerTestCase(unittest.TestCase):
             "WIFI:S:my_netwok_ssid;T:WPA/WPA2;P:my_super_secret_password;;"
         )
 
+    def test_generate_url_qr_code_with_center_image(self):
+        self.qr_code_handler = QrCodeHandler(self.static_test_dir_name, use_center_images=True)
+        self.qr_code_handler.add_url_qr_code(
+            "test_url_qr_code",
+            "www.test.com",
+            "Scan this qr code to go to www.test.com!"
+        )
+        qr_code_filepath = os.path.join(
+            self.static_test_dir_name,
+            "qr_codes",
+            "test_url_qr_code.png"
+        )
+        try:
+            decoded_qr_code = decode(Image.open(qr_code_filepath))
+        except ImportError:
+            self.print_zbar_error_message()
+            return
+
+        qr_code_text = decoded_qr_code[0].data.decode("utf-8")
+        self.assertEqual(qr_code_text, "www.test.com")
+
+    def test_generated_wifi_qr_code_with_center_image(self):
+        self.qr_code_handler = QrCodeHandler(self.static_test_dir_name, use_center_images=True)
+        self.qr_code_handler.add_wifi_qr_code(
+            "wifi_qr_code",
+            "my_netwok_ssid",
+            "WPA/WPA2",
+            "my_super_secret_password",
+            "Scan this qr code to connect to the wifi!"
+        )
+        qr_code_filepath = os.path.join(
+            self.static_test_dir_name,
+            "qr_codes",
+            "wifi_qr_code.png"
+        )
+        try:
+            decoded_qr_code = decode(Image.open(qr_code_filepath))
+        except ImportError:
+            self.print_zbar_error_message()
+            return
+
+        qr_code_text = decoded_qr_code[0].data.decode("utf-8")
+        self.assertEqual(
+            qr_code_text,
+            "WIFI:S:my_netwok_ssid;T:WPA/WPA2;P:my_super_secret_password;;"
+        )
+
     def test_get_qr_code_urls_as_strings_with_one_qr_code(self):
         self.qr_code_handler.add_url_qr_code(
             "test_url_qr_code",

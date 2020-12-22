@@ -9,28 +9,38 @@ class QrCodeHandler:
     information.
     """
 
-    def __init__(self, static_dir_path):
+    def __init__(self, static_dir_path, use_center_images=False):
         self.qr_code_folder = Folder(static_dir_path, "qr_codes")
         self.qr_codes = []
+        self.logo_image_path = None
+        self.wifi_image_path = None
+
+        if use_center_images:
+            self.logo_image_path = self.__get_path_to_icon_file("Camera-icon.png")
+            self.wifi_image_path = self.__get_path_to_icon_file("Wifi-icon.png")
 
     def add_url_qr_code(self, name, url, information_text):
+        """Add a qr_code containing and url to the qr code handler"""
         self.qr_codes.append(
             QrCode(
                 self.qr_code_folder,
                 name,
                 url,
-                information_text
+                information_text,
+                self.logo_image_path
             )
         )
 
     def add_wifi_qr_code(self, name, wifi_name, wifi_protocol, wifi_password, information_text):
+        """Add a qr_code containing and wifi information to the qr code handler"""
         wifi_qr_code_content = F"WIFI:S:{wifi_name};T:{wifi_protocol};P:{wifi_password};;"
         self.qr_codes.append(
             QrCode(
                 self.qr_code_folder,
                 name,
                 wifi_qr_code_content,
-                information_text
+                information_text,
+                self.wifi_image_path
             )
         )
 
@@ -50,8 +60,8 @@ class QrCodeHandler:
     def __get_absolute_url_for_qr_code(self, qr_code, host_ip):
         return "http://" + host_ip + ":5000/static/" + qr_code.get_relative_url()
 
-    def create_qr_code_handler_with_qr_codes(static_folder_path, host_ip):
-        qr_code_handler = QrCodeHandler(static_folder_path)
+    def create_qr_code_handler_with_qr_codes(static_folder_path, host_ip, use_center_images=False):
+        qr_code_handler = QrCodeHandler(static_folder_path, use_center_images)
 
         start_page_url = "http://{}:3000/".format(host_ip)
         qr_code_handler.add_url_qr_code(
@@ -75,3 +85,10 @@ class QrCodeHandler:
                 content["wifi_password"],
                 content["description"]
             )
+
+    def __get_path_to_icon_file(self, filename):
+        return os.path.join(
+            "image_resources",
+            "icons",
+            filename
+        )
