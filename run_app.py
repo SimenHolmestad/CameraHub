@@ -38,7 +38,7 @@ def run_backend_in_debug_mode(album_handler, camera_module, qr_code_handler):
     """
     print("Running the backend in debug mode. Start the frontend in a separate terminal window")
     change_frontend_proxy_config("localhost")
-    print_qr_codes(qr_code_handler, "localhost")
+    print("Url for qr codes:", get_url_for_qr_codes("localhost"))
 
     # run app
     app = create_app(album_handler, STATIC_FOLDER_NAME, camera_module, qr_code_handler)
@@ -48,18 +48,11 @@ def run_backend_in_debug_mode(album_handler, camera_module, qr_code_handler):
 def run_application(album_handler, camera_module, qr_code_handler):
     host_ip = find_ip_address_for_device()
     npm_process = run_frontend(host_ip)
-    print_qr_codes(qr_code_handler, "localhost")
+    qr_code_url = get_url_for_qr_codes(host_ip)
+    print("Url for qr codes:", qr_code_url)
 
-    # NOTE: start_page_qr_code_url should be changed to an actual
-    # webpage displaying both qr codes when a front-end is developed
-    # in the future.
-    start_page_qr_code_url = get_absolute_url_for_qr_code(
-        qr_code_handler.get_qr_codes()[0],
-        host_ip
-    )
-
-    # Open qr-code page in browser
-    browser_process = open_webpage_in_device_browser(start_page_qr_code_url)
+    # Open qr code page in browser
+    browser_process = open_webpage_in_device_browser(qr_code_url)
 
     # Run app
     app = create_app(album_handler, STATIC_FOLDER_NAME, camera_module, qr_code_handler)
@@ -147,16 +140,8 @@ def find_ip_address_for_device():
     return s.getsockname()[0]
 
 
-def get_absolute_url_for_qr_code(qr_code, host_ip):
-    return "http://" + host_ip + ":5000/static/" + qr_code.get_relative_url()
-
-
-def print_qr_codes(qr_code_handler, host_ip):
-    print("------------links to qr codes------------")
-    print()
-    print("\n".join(qr_code_handler.get_qr_code_urls_as_strings(host_ip)))
-    print()
-    print("-----------------------------------------")
+def get_url_for_qr_codes(host_ip):
+    return "http://" + host_ip + ":3000/qr_codes"
 
 
 if __name__ == '__main__':
