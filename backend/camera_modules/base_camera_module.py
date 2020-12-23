@@ -28,8 +28,13 @@ class BaseCameraModule(ABC):
         if self.is_busy:
             raise ImageCaptureError("Camera is already in use")
         self.is_busy = True
-        self.capture_image(image_path, raw_file_path)
-        self.is_busy = False
+
+        try:
+            self.capture_image(image_path, raw_file_path)
+        except Exception as e:
+            raise e
+        finally:
+            self.is_busy = False
 
 
 class ImageCaptureError(RuntimeError):
