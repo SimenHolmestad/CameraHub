@@ -62,6 +62,7 @@ class QrCodeHandler:
 
     def create_qr_code_handler_with_qr_codes(static_folder_path, host_ip, use_center_images=False):
         qr_code_handler = QrCodeHandler(static_folder_path, use_center_images)
+        qr_code_handler.__add_wifi_qr_code_if_network_details_file_exists()
 
         start_page_url = "http://{}:3000/".format(host_ip)
         qr_code_handler.add_url_qr_code(
@@ -70,7 +71,6 @@ class QrCodeHandler:
             "Scan this qr code to go to CameraHub!"
         )
 
-        qr_code_handler.__add_wifi_qr_code_if_network_details_file_exists()
         return qr_code_handler
 
     def __add_wifi_qr_code_if_network_details_file_exists(self):

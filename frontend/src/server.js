@@ -39,3 +39,9 @@ export const create_or_update_album = async (album_name, description) => {
   const data = await response.json();
   return data;
 }
+
+export const get_qr_codes = async () => {
+  const response = await fetch('/qr_codes/');
+  const data = await response.json();
+  return data;
+}

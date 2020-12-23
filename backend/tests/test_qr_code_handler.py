@@ -232,8 +232,8 @@ class QrCodeHandlerTestCase(unittest.TestCase):
         )
         qr_codes = qr_code_handler.get_qr_codes()
         self.assertEqual(len(qr_codes), 2)
-        self.assertEqual(qr_codes[0].get_name(), "start_page_url")
-        self.assertEqual(qr_codes[1].get_name(), "wifi_qr_code")
+        self.assertEqual(qr_codes[0].get_name(), "wifi_qr_code")
+        self.assertEqual(qr_codes[1].get_name(), "start_page_url")
 
         os.chdir("./..")
 

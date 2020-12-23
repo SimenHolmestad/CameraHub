@@ -2,6 +2,7 @@ import React from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import UserPages from './components/UserPages'
 import LastImage from './components/LastImage'
+import QrCodePage from './components/QrCodePage'
 
 import {
   BrowserRouter as Router,
@@ -17,6 +18,7 @@ function App() {
       <Router>
         <Switch>
           <Route exact path='/album/:albumName/last_image' component={ LastImage }/>
+          <Route exact path='/qr_codes' component={ QrCodePage }/>
           <Route path='/' component={ UserPages }/>
         </Switch>
       </Router>
