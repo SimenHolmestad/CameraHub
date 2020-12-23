@@ -15,14 +15,18 @@ def create_fast_dummy_module():
 
 
 class FaultyCameraModule(BaseCameraModule):
-    """Very badly implemented camera module to test error handling
-    functionality."""
+    """A camera module to test error handling functionality"""
 
-    def __init__(self):
-        super().__init__(".jpg")
+    def __init__(self, should_fail=True):
+        super().__init__(".jpg", verbose_errors=False)
+        self.should_fail = should_fail
+        self.dummy_module = create_fast_dummy_module()
 
     def capture_image(self, image_path, raw_file_path=None):
-        raise ImageCaptureError("This is a test error message")
+        if self.should_fail:
+            raise ImageCaptureError("This is a test error message")
+
+        self.dummy_module.try_capture_image(image_path)
 
 
 class DummyRawModule(BaseCameraModule):

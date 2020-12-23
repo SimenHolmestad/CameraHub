@@ -177,6 +177,25 @@ class AlbumApiTestCase(unittest.TestCase):
         ).json
         self.assertEqual(json_response, {'error': 'This is a test error message'})
 
+    def test_camera_is_not_busy_after_failed_capture(self):
+        faulty_module = FaultyCameraModule()
+        self.create_app_and_client_with_camera_module(faulty_module)
+        self.create_temp_album("album1")
+
+        self.test_client.post(
+            "/albums/album1",
+            content_type='application/json',
+            follow_redirects=True
+        ).json  # This request should fail
+        faulty_module.should_fail = False
+
+        json_response = self.test_client.post(
+            "/albums/album1",
+            content_type='application/json',
+            follow_redirects=True
+        ).json
+        self.assertNotIn("error", json_response)
+
     def test_get_last_image_for_album_on_empty_album(self):
         self.create_temp_album("album1")
         json_response = self.test_client.get("/albums/album1/last_image").json

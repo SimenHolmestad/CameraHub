@@ -1,15 +1,21 @@
 from abc import ABC, abstractmethod
+import traceback
 
 
 class BaseCameraModule(ABC):
     """Abstract class containing common image capture related code"""
 
-    def __init__(self, file_extension, needs_raw_file_transfer=False, raw_file_extension=None):
+    def __init__(self,
+                 file_extension,
+                 needs_raw_file_transfer=False,
+                 raw_file_extension=None,
+                 verbose_errors=True):
         """needs_raw_file_transfer should only be True if the camera captures
         both jpg and raw and the raw file needs to be stored in the system"""
         self.file_extension = file_extension
         self.needs_raw_file_transfer = needs_raw_file_transfer
         self.raw_file_extension = raw_file_extension
+        self.verbose_errors = verbose_errors
         self.is_busy = False
 
     @abstractmethod
@@ -32,9 +38,18 @@ class BaseCameraModule(ABC):
         try:
             self.capture_image(image_path, raw_file_path)
         except Exception as e:
-            raise e
+            self.__handle_exception(e)
         finally:
             self.is_busy = False
+
+    def __handle_exception(self, e):
+        if self.verbose_errors:
+            traceback.print_exc()
+
+        if not isinstance(e, ImageCaptureError):
+            raise ImageCaptureError("Something went wrong during image capture")
+
+        raise e
 
 
 class ImageCaptureError(RuntimeError):
