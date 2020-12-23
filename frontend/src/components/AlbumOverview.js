@@ -10,6 +10,8 @@ import CameraIcon from '@material-ui/icons/PhotoCamera';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
@@ -44,6 +46,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
 function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
   const classes = useStyles();
@@ -51,6 +57,15 @@ function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
   const imageUrls = albumData.image_urls
   const albumName = albumData.album_name
   const albumDescription = albumData.description
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState("");
+  const handleErrorSnackbarClose = (_event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setErrorSnackbarOpen(false);
+  };
 
   let cardGrid = null
   if (thumbnailUrls.length === 0) {
@@ -96,12 +111,17 @@ function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
     e.preventDefault();
     setIsCapturingImage(true)
     const response = await capture_image_to_album(albumName)
-    setAlbumData({
-      album_name: albumName,
-      description: albumDescription,
-      thumbnail_urls: [response.thumbnail_url, ...thumbnailUrls],
-      image_urls: [response.image_url, ...imageUrls],
-    })
+    if(response.error){
+      setErrorMessage(response.error)
+      setErrorSnackbarOpen(true)
+    } else {
+      setAlbumData({
+        album_name: albumName,
+        description: albumDescription,
+        thumbnail_urls: [response.thumbnail_url, ...thumbnailUrls],
+        image_urls: [response.image_url, ...imageUrls],
+      })
+    }
     setIsCapturingImage(false)
   }
 
@@ -134,6 +154,11 @@ function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
           </div>
         </Container>
       </div>
+      <Snackbar open={errorSnackbarOpen} autoHideDuration={5000} onClose={handleErrorSnackbarClose}>
+        <Alert severity="error">
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Container className={classes.cardGrid} maxWidth="md">
         { cardGrid }
       </Container>
