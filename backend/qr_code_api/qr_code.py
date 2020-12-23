@@ -57,8 +57,8 @@ class QrCode:
         qr_img.save(qr_code_file_path)
 
     def __paste_image_in_center(self, background, center_image_path):
-        paste_img = Image.open(center_image_path, 'r').resize((256, 256))
+        paste_img = Image.open(center_image_path, 'r').convert("RGBA").resize((256, 256))
         offset_value = (self.qr_image_size - self.center_image_size) // 2
         offset = ((offset_value, offset_value))
-        background.paste(paste_img, offset)
+        background.paste(paste_img, offset, paste_img)
         return background
