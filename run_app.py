@@ -48,9 +48,10 @@ def run_application(album_handler, camera_module):
     qr_code_handler = create_qr_code_handler(PRODUCTION_PORT)
     qr_code_url = get_url_for_qr_codes(PRODUCTION_PORT)
     print("Url for qr codes:", qr_code_url)
-    browser_process = open_webpage_in_device_browser(qr_code_url)
 
     app = create_app(album_handler, STATIC_FOLDER_NAME, camera_module, qr_code_handler)
+
+    browser_process = open_webpage_in_device_browser(qr_code_url)
     app.run(host=find_ip_address_for_device())
 
     # Delete browser process if it was created
