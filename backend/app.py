@@ -15,4 +15,9 @@ def create_app(album_handler, static_folder_name, camera_module, qr_code_handler
         qr_code_handler
     ), url_prefix="/qr_codes")
 
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')  # Make sure subpaths are routed to react
+    def index(path):
+        return app.send_static_file('react/index.html')
+
     return app
