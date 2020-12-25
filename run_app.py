@@ -119,7 +119,7 @@ def find_ip_address_for_device():
 
 
 def get_url_for_qr_codes(port):
-    return "http://" + find_ip_address_for_device() + ":" + str(port) + "/qr_codes"
+    return "http://" + find_ip_address_for_device() + ":" + str(port) + "/qr"
 
 
 if __name__ == '__main__':

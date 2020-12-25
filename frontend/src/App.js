@@ -18,7 +18,7 @@ function App() {
       <Router>
         <Switch>
           <Route exact path='/album/:albumName/last_image' component={ LastImage }/>
-          <Route exact path='/qr_codes' component={ QrCodePage }/>
+          <Route exact path='/qr' component={ QrCodePage }/>
           <Route path='/' component={ UserPages }/>
         </Switch>
       </Router>
