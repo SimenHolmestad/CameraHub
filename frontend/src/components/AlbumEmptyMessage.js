@@ -22,7 +22,7 @@ function AlbumEmptyMessage() {
           There are no images
         </Typography>
         <Typography variant="h5" className={classes.emptyAlbumText} align="center" color="textSecondary" paragraph>
-          There are currently no images in this album. The last image captured will appear here when images are captured to the album.
+          There are currently no images in this album. Images will appear here when they are captured to the album.
         </Typography>
       </Container>
     </div>

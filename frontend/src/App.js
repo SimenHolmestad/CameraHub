@@ -4,6 +4,7 @@ import UserPages from './components/UserPages'
 import LastImagePage from './components/LastImagePage'
 import QrCodePage from './components/QrCodePage'
 import QrCodeLastImagePage from './components/QrCodeLastImagePage'
+import SlideshowPage from './components/SlideshowPage'
 
 import {
   BrowserRouter as Router,
@@ -20,6 +21,7 @@ function App() {
         <Switch>
           <Route exact path='/album/:albumName/last_image' component={ LastImagePage }/>
           <Route exact path='/album/:albumName/last_image_qr' component={ QrCodeLastImagePage }/>
+          <Route exact path='/album/:albumName/slideshow' component={ SlideshowPage }/>
           <Route exact path='/qr' component={ QrCodePage }/>
           <Route path='/' component={ UserPages }/>
         </Switch>
