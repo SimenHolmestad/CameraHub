@@ -4,28 +4,9 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
+import FullscreenImage from './FullscreenImage';
 
 const useStyles = makeStyles(() => ({
-  image: {
-    maxWidth: "100%",
-    maxHeight: "100%",
-    bottom: "0",
-    left: "0",
-    margin: "auto",
-    position: "fixed",
-    right: "0",
-    top: "0",
-    objectFit: "contain",
-    zoom: 10
-  },
-  background: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height:" 100%",
-    backgroundColor: "black"
-  },
   noImagesDiv: {
     height: "90vh",
     display: "flex",
@@ -85,9 +66,7 @@ function LastImage(props) {
   }
 
   return (
-    <div className={ classes.background }>
-      <img src={imageUrl} className={ classes.image } alt=""/>
-    </div>
+    <FullscreenImage imageUrl={ imageUrl }/>
   );
 }
 
