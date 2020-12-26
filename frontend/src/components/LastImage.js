@@ -1,27 +1,14 @@
 import React from 'react';
 import { get_last_image_url } from './../server'
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
 import FullscreenImage from './FullscreenImage';
-
-const useStyles = makeStyles(() => ({
-  noImagesDiv: {
-    height: "90vh",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center"
-  }
-}));
+import AlbumEmptyMessage from './AlbumEmptyMessage';
 
 function LastImage(props) {
   const [imageUrl, setImageUrl] = React.useState(null);
   const [albumEmpty, setAlbumEmpty] = React.useState(false);
   const [albumExists, setAlbumExists] = React.useState(true);
-  const classes = useStyles();
-  const albumName = props.match.params.albumName;
+  const albumName = props.albumName;
 
   React.useEffect(() => {
     const getLastImageData = () => {
@@ -46,19 +33,8 @@ function LastImage(props) {
     return <h1>There is no album named {albumName}</h1>
   }
 
-  if (albumEmpty) {
-    return (
-      <div className={ classes.noImagesDiv }>
-        <Container justify="center" maxWidth="sm">
-          <Typography variant="h3" className={classes.emptyAlbumText} align="center" color="textSecondary" gutterBottom>
-            There are no images
-          </Typography>
-          <Typography variant="h5" className={classes.emptyAlbumText} align="center" color="textSecondary" paragraph>
-            There are currently no images in this album. The last image captured will appear here when images are captured to the album.
-          </Typography>
-        </Container>
-      </div>
-    )
+  if (albumEmpty && !props.overlay) {
+    return <AlbumEmptyMessage/>
   }
 
   if (!imageUrl) {
