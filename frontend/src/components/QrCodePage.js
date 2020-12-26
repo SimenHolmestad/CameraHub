@@ -1,24 +1,11 @@
 import React from 'react';
-import { get_qr_codes } from './../server'
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import CameraIcon from '@material-ui/icons/PhotoCamera';
+import { get_qr_codes } from './../server';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router-dom';
-
+import Header from './Header';
 
 const useStyles = makeStyles((theme) => ({
-  icon: {
-    marginRight: theme.spacing(2),
-  },
-  logo: {
-    textDecoration: "inherit",
-    color: "inherit",
-    textTransform: "none"
-  },
   qrCodeGridItem: {
     width: "45%"
   },
@@ -54,16 +41,7 @@ function QrCodePage() {
 
   return (
     <>
-      <AppBar position="relative">
-        <Toolbar>
-          <Button component={Link} to={ "/" } className={classes.logo}>
-            <CameraIcon className={classes.icon} />
-            <Typography variant="h6" color="inherit" noWrap>
-              CameraHub
-            </Typography>
-          </Button>
-        </Toolbar>
-      </AppBar>
+      <Header/>
       <Grid container justify="space-around" className={classes.qrCodeGrid}>
         {qrCodes}
       </Grid>
