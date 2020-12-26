@@ -37,12 +37,12 @@ function LastImage(props) {
     return <AlbumEmptyMessage/>
   }
 
-  if (!imageUrl) {
+  if (!imageUrl && !props.overlay) {
     return <CircularProgress/>
   }
 
   return (
-    <FullscreenImage imageUrl={ imageUrl }/>
+      <FullscreenImage imageUrl={ imageUrl } time={ props.overlayTime } startHided={ props.overlay }/>
   );
 }
 
