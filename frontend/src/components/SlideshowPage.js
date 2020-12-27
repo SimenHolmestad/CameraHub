@@ -9,7 +9,7 @@ function SlideshowPage(props) {
   const [imageUrls, setImageUrls] = React.useState(null);
   const albumName = props.match.params.albumName;
 
-  // Update the album data from server every 3 minutes
+  // Update the album data from server every 30 seconds
   React.useEffect(() => {
     get_album_info(albumName).then((data) => {
       setImageUrls(data.image_urls);
@@ -18,7 +18,7 @@ function SlideshowPage(props) {
       get_album_info(albumName).then((data) => {
         setImageUrls(data.image_urls);
       });
-    }, 180000);
+    }, 30000);
     return () => clearInterval(interval);
   }, [albumName]);
 
