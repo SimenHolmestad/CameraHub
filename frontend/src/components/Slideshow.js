@@ -3,10 +3,11 @@ import FullscreenImage from './FullscreenImage';
 
 
 function Slideshow({ imageUrls }) {
-  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
-  const [nextImageIndex, setNextImageIndex] = React.useState(1 % imageUrls.length);
-  let nextImageRef = React.useRef(1 % imageUrls.length);
-  let numberOfImagesRef = React.useRef(imageUrls.length);
+  const [topImageIndex, setTopImageIndex] = React.useState(0);
+  const [bottomImageIndex, setBottomImageIndex] = React.useState(1 % imageUrls.length);
+  const bottomImageRef = React.useRef(1 % imageUrls.length);
+  const numberOfImagesRef = React.useRef(imageUrls.length);
+  const topImageShowing = React.useRef(false);
 
   React.useEffect(() => {
     numberOfImagesRef.current = imageUrls.length
@@ -14,25 +15,34 @@ function Slideshow({ imageUrls }) {
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      const currentValue = nextImageRef.current
+      const currentValue = bottomImageRef.current
       let nextValue = Math.floor(Math.random() * numberOfImagesRef.current)
       if (currentValue === nextValue) {
         nextValue = (nextValue + 1) % numberOfImagesRef.current
       }
 
-      setCurrentImageIndex(currentValue)
+      topImageShowing.current = true
+      setTopImageIndex(currentValue)
       setTimeout(() => {
-        nextImageRef.current = nextValue
-        setNextImageIndex(nextValue)
+        bottomImageRef.current = nextValue
+        setBottomImageIndex(nextValue)
       }, 1000)
+      setTimeout(() => {
+        topImageShowing.current = false
+      }, 3000)
     }, 8000);
     return () => clearInterval(interval);
   }, []);
 
+  let topImage = null
+  if (topImageShowing.current) {
+    topImage = <FullscreenImage imageUrl={ imageUrls[topImageIndex] } time={ 2000 }/>
+  }
+
   return (
     <>
-      <FullscreenImage imageUrl={ imageUrls[nextImageIndex] }/>
-      <FullscreenImage imageUrl={ imageUrls[currentImageIndex] } time={ 2000 }/>
+      <FullscreenImage imageUrl={ imageUrls[bottomImageIndex] }/>
+      { topImage }
     </>
   );
 }
