@@ -20,6 +20,7 @@ def initialize_application():
     args = parse_command_line_args()
 
     album_handler = FolderAlbumHandler(STATIC_FOLDER_PATH, "albums")
+    album_handler.ensure_all_thumbnails_correct()
     camera_module = get_instance_of_camera_module_by_name(args.camera_module)
 
     if args.debug:
