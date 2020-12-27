@@ -5,15 +5,18 @@ import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Header from './Header';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   qrCodeGridItem: {
     width: "45%"
   },
   image: {
     width: "100%"
   },
-  qrCodeGrid: {
-    marginTop: "5%"
+  verticallyCenteredDiv: {
+    height: "90vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center"
   }
 }));
 
@@ -42,9 +45,11 @@ function QrCodePage() {
   return (
     <>
       <Header/>
-      <Grid container justify="space-around" className={classes.qrCodeGrid}>
-        {qrCodes}
-      </Grid>
+      <div className={classes.verticallyCenteredDiv}>
+        <Grid container justify="space-around" className={classes.qrCodeGrid}>
+          {qrCodes}
+        </Grid>
+      </div>
     </>
   );
 }
