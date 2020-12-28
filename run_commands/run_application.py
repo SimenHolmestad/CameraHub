@@ -7,7 +7,8 @@ class RunApplication(BaseRunConfig):
         super().__init__(*args, **kwargs)
 
     def run(self):
-        self.build_frontend()
+        if not self.frontend_is_built():
+            self.build_frontend()
 
         qr_code_url = self.get_url_for_qr_code_page(self.production_port)
         print("Url for qr codes (when frontend is running):", qr_code_url)

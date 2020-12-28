@@ -38,6 +38,18 @@ class BaseRunConfig(ABC):
         self.__move_frontend_folder_to_flask()
         os.chdir("./..")
 
+    def frontend_is_built(self):
+        node_modules_path = os.path.join(
+            "frontend",
+            "node_modules"
+        )
+        build_folder_path = os.path.join(
+            "backend",
+            "static",
+            "react"
+        )
+        return os.path.exists(node_modules_path) and os.path.exists(build_folder_path)
+
     def open_webpage_in_device_browser(self, url):
         """If chromium is used, the chromium subprocess is returned so that
         it can be terminated later.
