@@ -1,5 +1,4 @@
 import os
-import getpass
 import subprocess
 from .base_run_config import BaseRunConfig
 
@@ -12,7 +11,7 @@ class Deploy(BaseRunConfig):
     def run(self):
         if os.geteuid() != 0:
             print("The deploy script must be run as root.")
-            print("Run script with \"sudo python3 deploy\" ...")
+            print("Run script with \"sudo python3 deploy ...\"")
             return
 
         if not self.frontend_is_built():
@@ -31,6 +30,7 @@ class Deploy(BaseRunConfig):
 
         self.start_or_restart_systemd_process()
         print("System started")
+        print("To get system status, run \"sudo systemctl status camerahub\"")
 
     def get_systemd_file_path(self):
         return os.path.join(
@@ -49,7 +49,7 @@ class Deploy(BaseRunConfig):
 
 
     def create_systemd_config_file_content(self, application_command):
-        username = getpass.getuser()
+        username = os.environ["SUDO_USER"]
         working_directory = os.getcwd()
 
         content_lines = [
