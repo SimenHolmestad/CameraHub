@@ -3,13 +3,15 @@ from .deploy import Deploy
 from .run_application import RunApplication
 from .run_backend import RunBackend
 from .try_camera_module import TryCameraModule
+from .update_and_redeploy import UpdateAndRedeploy
 
 COMMAND_OPTIONS = {
     "build": Build,
     "deploy": Deploy,
     "run_application": RunApplication,
     "run_backend": RunBackend,
-    "try_camera_module": TryCameraModule
+    "try_camera_module": TryCameraModule,
+    "update_and_redeploy": UpdateAndRedeploy
 }
 
 
