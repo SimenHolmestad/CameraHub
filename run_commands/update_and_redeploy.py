@@ -1,3 +1,5 @@
+import os
+import subprocess
 from .deploy import Deploy
 
 
@@ -12,7 +14,7 @@ class UpdateAndRedeploy(Deploy):
             return
 
         subprocess.run("git reset --hard HEAD", shell=True)
-        subprocess.run("git pull")
+        subprocess.run("git pull", shell=True)
         self.build_frontend()
 
         systemd_file_content = ""
