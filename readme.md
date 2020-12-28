@@ -1,4 +1,7 @@
+**Note:** The readme is currently a bit out of date, but will be updated soon.
+
 # CameraHub
+
 CameraHub is meant to be an application for controlling a camera (DSLR or Raspberry PI camera module) through a web interface. The repo consists of a Flask backend and a react Frontend designed with Material UI. While the project is currently being used with a Raspberry PI 4, it will probably work with older versions as well.
 
 # Motivation

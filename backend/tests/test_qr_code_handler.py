@@ -205,6 +205,7 @@ class QrCodeHandlerTestCase(unittest.TestCase):
 
         qr_code_handler = QrCodeHandler.create_qr_code_handler_with_qr_codes(
             self.static_test_dir_name,
+            5000,
             "192.168.0.1"
         )
         qr_codes = qr_code_handler.get_qr_codes()
@@ -228,6 +229,7 @@ class QrCodeHandlerTestCase(unittest.TestCase):
 
         qr_code_handler = QrCodeHandler.create_qr_code_handler_with_qr_codes(
             self.static_test_dir_name,
+            5000,
             "192.168.0.1"
         )
         qr_codes = qr_code_handler.get_qr_codes()
