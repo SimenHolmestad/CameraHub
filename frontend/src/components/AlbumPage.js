@@ -25,7 +25,6 @@ function AlbumPage(props) {
   // Update the album data from server every 5 seconds
   useEffect(() => {
     const gather_album_data = async () => {
-      console.log("here");
       const albumInfo = await get_album_info(albumName)
       if (albumInfo.error) {
         setErrorMessage(albumInfo.error)

@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import Card from '@material-ui/core/Card';
-import { get_available_albums } from './../server'
+import { get_available_album_data } from './../server'
 import NewAlbumDialog from './NewAlbumDialog';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
 
-const useAlbumNames = () => {
-  const [albumNames, setAlbumNames] = useState(null);
+const useAlbumData = () => {
+  const [albumData, setAlbumData] = useState(null);
   useEffect(() => {
-    get_available_albums().then((data) => setAlbumNames(data));
+    get_available_album_data().then((data) => setAlbumData(data));
   }, []);
-  return albumNames;
+  return albumData;
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -48,19 +48,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Menu() {
-  const albumNames = useAlbumNames();
+  const albumData = useAlbumData();
   const classes = useStyles();
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   let albumList = null
-  if (!albumNames) {
-    albumList = (
+  if (!albumData) {
+    return (
       <Grid container className={classes.loadingGrid} spacing={2} justify="center">
         <CircularProgress/>
       </Grid>
     )
+  } else if (albumData.forced_album) {
+    return <Redirect to={"/album/" + albumData.forced_album} />
   } else {
-    albumList = albumNames.map((albumName) => (
+    albumList = albumData.available_albums.map((albumName) => (
       <Link key={albumName} to={ "/album/" + albumName } className={classes.albumLink}>
         <Card className={classes.card}>
           <Typography variant="h3" align="center" color="textPrimary" className={classes.albumLinkText} paragraph>
