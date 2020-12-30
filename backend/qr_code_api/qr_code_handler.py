@@ -60,18 +60,26 @@ class QrCodeHandler:
     def __get_absolute_url_for_qr_code(self, qr_code, host_ip):
         return "http://" + host_ip + ":5000/static/" + qr_code.get_relative_url()
 
-    def create_qr_code_handler_with_qr_codes(static_folder_path, host_ip, port, use_center_images=False):
+    def create_qr_code_handler_with_qr_codes(static_folder_path,
+                                             host_ip,
+                                             port,
+                                             use_center_images=False,
+                                             forced_album_name=None):
         qr_code_handler = QrCodeHandler(static_folder_path, use_center_images)
         qr_code_handler.__add_wifi_qr_code_if_network_details_file_exists()
 
-        start_page_url = "http://{}:{}/".format(host_ip, port)
+        start_page_url = QrCodeHandler.get_start_page_url(host_ip, port, forced_album_name)
         qr_code_handler.add_url_qr_code(
             "start_page_url",
             start_page_url,
             "Scan this qr code to go to CameraHub!"
         )
-
         return qr_code_handler
+
+    def get_start_page_url(host_ip, port, forced_album_name=None):
+        if forced_album_name:
+            return "http://{}:{}/album/{}".format(host_ip, port, forced_album_name)
+        return "http://{}:{}/".format(host_ip, port)
 
     def __add_wifi_qr_code_if_network_details_file_exists(self):
         if os.path.exists("network_details.json"):

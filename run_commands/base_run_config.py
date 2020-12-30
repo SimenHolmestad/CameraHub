@@ -71,7 +71,8 @@ class BaseRunConfig(ABC):
             self.static_folder_path,
             self.host_ip,
             port,
-            use_center_images=True
+            use_center_images=True,
+            forced_album_name=self.args.force_album
         )
 
     def get_url_for_qr_code_page(self, port):
