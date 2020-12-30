@@ -2,7 +2,7 @@ from flask import Blueprint, request, url_for, jsonify
 from backend.camera_modules.base_camera_module import ImageCaptureError
 
 
-def construct_album_api_blueprint(album_handler, camera_module):
+def construct_album_api_blueprint(album_handler, camera_module, forced_album_name=None):
     """Constructs route related to accessing the albums and adding new
     images to them using the camera module
     """
@@ -36,6 +36,9 @@ def construct_album_api_blueprint(album_handler, camera_module):
 
         If the album does not exist, an error message is returned.
         """
+        if forced_album_name and album_name != forced_album_name:
+            return unaccessible_album_error_message()
+
         if not album_handler.album_exists(album_name):
             error_message = "No album with the name \"{}\" exists".format(album_name)
             return jsonify({"error": error_message})
@@ -50,6 +53,9 @@ def construct_album_api_blueprint(album_handler, camera_module):
         """Returns the url of the last image captured to the specified
         album
         """
+        if forced_album_name and album_name != forced_album_name:
+            return unaccessible_album_error_message()
+
         if not album_handler.album_exists(album_name):
             error_message = "No album with the name \"{}\" exists".format(album_name)
             return jsonify({"error": error_message})
@@ -66,6 +72,9 @@ def construct_album_api_blueprint(album_handler, camera_module):
         })
 
     def create_or_update_album(request):
+        if forced_album_name:
+            return unaccessible_album_error_message()
+
         if (not request.data) or ("album_name" not in request.json):
             return jsonify({"error": "Missing required parameter <album_name>"})
 
@@ -81,6 +90,9 @@ def construct_album_api_blueprint(album_handler, camera_module):
         })
 
     def get_available_albums(request):
+        if forced_album_name:
+            return jsonify({"forced_album": forced_album_name})
+
         album_names = album_handler.get_available_album_names()
         return jsonify({"available_albums": album_names})
 
@@ -122,5 +134,10 @@ def construct_album_api_blueprint(album_handler, camera_module):
 
     def create_static_url_list(relative_url_list):
         return list(map(create_static_url, relative_url_list))
+
+    def unaccessible_album_error_message():
+        return jsonify({
+            "error": "Illegal operation. The only accessible album is {}.".format(forced_album_name)
+        })
 
     return album_api_blueprint
