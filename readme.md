@@ -1,8 +1,5 @@
-**Note:** The readme is currently a bit out of date, but will be updated soon.
-
 # CameraHub
-
-CameraHub is meant to be an application for controlling a camera (DSLR or Raspberry PI camera module) through a web interface. The repo consists of a Flask backend and a react Frontend designed with Material UI. While the project is currently being used with a Raspberry PI 4, it will probably work with older versions as well.
+CameraHub is an application for controlling a camera through a web interface. Currently, only Raspberry PI camera modules and canon DSLRs are supported, but adding additional camera types should not be that difficult. The application consists of a Flask backend and a react Frontend designed with Material UI. While the project is currently being used with a Raspberry PI 4, it will probably work with older versions of Raspberry PIs as well.
 
 # Motivation
 CameraHub does much of the same as [this project](https://github.com/SimenHolmestad/Fotobox) (made some time ago), but aims to:
@@ -23,7 +20,7 @@ git clone https://github.com/SimenHolmestad/CameraHub.git
 cd CameraHub
 pip install -r requirements.txt
 export FLASK_ENV=development
-python3 run_app.py -d
+python3 run.py run_backend
 ```
 Then, open a second terminal window and do
 ```
@@ -33,34 +30,65 @@ npm start
 ```
 Running the project this way will use the [dummy camera module](#the-dummy-camera-module), so that no camera connection is needed when developing.
 
-# Setting up the application on a Raspberry PI
-Running the application on the Raspberry PI can be done in many ways. One of the ways is described below:
+# Running the tests
+Currently, only the backend code is tested. To run the backend tests, navigate to the root directory of the project and do:
+```
+python3 -m unittest
+```
+
+**Note:** The tests uses pyzbar to check if the qr-codes are generated correctly. To install pyzbar, check <https://pypi.org/project/pyzbar/>.
+
+Maybe one day the frontend will be tested as well, but that day has yet to come.
+
+# Deploying the project to a Raspberry PI
+Instructions on how to deploy the project on a Raspberry PI are provided below, but there are probably several other ways of doing this.
 
 ## Installing the OS
-It is recommended to use the operating system "Raspberry Pi OS with desktop" which can be found [here](https://www.raspberrypi.org/software/operating-systems/). This can be written to an sd-card by using the Raspberry PI Imager or the [balena etcher](https://www.balena.io/etcher/). The "Raspberry Pi OS with desktop" should come with python installed.
+It is recommended to use CameraHub with the operating system "Raspberry Pi OS with desktop" which can be found [here](https://www.raspberrypi.org/software/operating-systems/). The operating system can be written to an sd-card by using the Raspberry PI Imager or the [balena etcher](https://www.balena.io/etcher/). The "Raspberry Pi OS with desktop" should come with python installed.
 
 ## Setting up the Raspberry PI
-When having a keyboard, mouse and monitor, this should not be a problem. If not, check out [this page about connecting to the RPI in headless mode](https://www.raspberrypi.org/documentation/remote-access/README.md) and possibly [this page about connecting the RPI to wifi in headless mode](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md).
+When having a keyboard, mouse and monitor, this should not be a problem. If not, check out [this page about connecting to the RPI in headless mode](https://www.raspberrypi.org/documentation/remote-access/README.md) and possibly [this page about connecting the RPI to wifi in headless mode](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md). The Raspberry PI needs to be connected to the same network as the units which are going to access the application.
 
-Also, make sure that node and npm are installed by doing:
+## Install project dependencies
+First, make sure that node and npm are installed by doing:
 ```
 sudo apt-get install nodejs npm
 ```
-
-## Running the appliction on Raspberry PI
-The current way to run the application on the Raspberry PI is to do:
+Then, download the project and install python requirements by doing:
 ```
 git clone https://github.com/SimenHolmestad/CameraHub.git
 cd CameraHub
 pip3 install -r python-requirements.txt
-python3 run_app.py --camera_module <name_of_module>
+```
+
+Note that using a DSLR camera requires [further installation steps](#the-dslr-camera-modules).
+
+## Running the application (Not deploying!)
+The command for running the application on the Raspberry PI is:
+```
+python3 run.py run_application
+```
+
+To use an actual camera, the application must be run as
+```
+python3 run.py run_application -c <name_of_module>
 ```
 Where `<name_of_module>` is one of the modules in [the camera modules section](#camera-modules).
 
-This is working, but is definitely not an optimal solution for performance as `npm start` now runs as a subprocess together with flask. Building the react files using `npm run build` and have flask serve them would have been better for performance, but would also probably require more setup steps and configuration file changes.
+It is also possible to run the application with access to only a single album. To do this, run the application with:
+```
+python3 run.py run_application -c <name_of_module> --force_album <album_name>
+```
+With only access to a single album, the user interface becomes simpler.
 
-One of the goals for CameraHub is that it should be easy to set up, but that does not mean performance should be totally neglected. Finding a better way to deploy the project on the Raspberry PI (which does not require too many steps) should be a priority in the future.
+## Deploying
+As we want the application to run at all times, we need to deploy it somehow. One way to this is to use systemd, as described in [this blog post](https://blog.miguelgrinberg.com/post/running-a-flask-application-as-a-service-with-systemd). To make this process simpler, a deploy script is provided to do this job. The deploy script can be run with:
 
+```
+python3 run.py deploy <args>
+```
+
+where `<args>` are the same as when running the application. To redeploy with other arguments, just run the deploy command again.
 # Folder structure
 The CameraHub project does not use a database and instead relies on just using folders. This is done so that it is not necessary keep a database in sync with the folder structure, thus making it easier to move image folders back and forth (which is necessary because of limited storage space on the Raspberry PI). While this is not good performance-wise, CameraHub is not meant to scale anyway, so it is completely fine.
 
@@ -81,7 +109,7 @@ In addition to the files and folders above, each album folder **may** contain:
 - A file named `description.txt` with a description of the album
 - Other files and folders not used by CameraHub, such as folders containing raw images.
 
-# API Endpoints
+# Album API Endpoints
 Using the endpoints of the API it is possible to create albums, get the images of albums and capture new images to an album. The following endpoints are provided:
 
 ## GET `/albums/` -> List available albums
@@ -96,7 +124,7 @@ Returns a list of the image links for all images in `<album_name>`. If an album 
 ## POST `/albums/<album_name>` -> Capture new image to album
 Try to capture an image with the camera module and add the image to `<album_name>`. The response will contain the image and thumbnail links for the image which has been captured. If an error has occurred, an error message is returned instead.
 
-## GET `/albums/<album_name>/last_image` -> Get of last image
+## GET `/albums/<album_name>/last_image` -> Get url of last image
 Returns the url of the last image captured to `<album_name>`. If `<album_name>` does not exist, the error `"No album with the name <album_name> exists"` will be returned. If the album is empty, the error `"album is empty"` is returned.
 
 # Camera modules
@@ -108,11 +136,11 @@ The camera module is the part of the system which handles image capturing. If Ca
 - `dslr_raw`
 - `dslr_raw_transfer`
 
-It is possible to test a camera module without running the app by doing:
+It is possible to try out a camera module without running the app by doing:
 ```
-python3 try_camera_module.py <name_of_module>
+python3 run.py try_camera_module -c <name_of_module>
 ```
-Doing this will create a folder named `test_albums` which will contain the image files created.
+Doing this will create a folder named `test_albums` (in the root of the project) which will contain the image files created.
 
 The current camera modules are:
 ## The dummy camera module
@@ -184,26 +212,47 @@ The QR code will be saved with the file path `backend/static/qr_codes/wifi_qr_co
 
 Doing this might be a security risk, but storing your wifi password in a QR code is probably a security risk anyway.
 
-# Show the last image of an album
-In some cases, it is useful to have a monitor showing the last image added to the album. To do this, open a browser on the monitor, navigate to the desired album page and add `/last_image` to the url. The url should now look something like this:
-```
-<ip_address>:<port>/album/<your_album_name>/last_image
-```
-This will show a page containing the last image added to the album in fullscreen. The page will continously update when new images are added.
+# Additional useful pages
+Some "hidden pages" not accessible from the user interface is included in the project. These are mostly meant to be shown on a monitor or projector close to the camera.
 
-There is currently no way to reach this page for "normal users" without altering the url.
-
-# Running the tests
-Currently, only the backend code is tested. To run the backend tests, navigate to the root directory of the project and do:
+## The qr code page
+The qr code page shows the qr codes for the project and is found at:
 ```
-python3 -m unittest
+/qr
 ```
 
-**Note:** The tests uses pyzbar to check if the qr-codes are generated correctly. To install pyzbar, check <https://pypi.org/project/pyzbar/>.
+## The last image page
+The last image page shows the last image captured to an album in fullscreen and is located at:
+```
+/album/<your_album_name>/last_image
+```
+The page will be updated every time a new image is added to the album.
+
+The easiest way to access the last image page page is to open a browser, navigate to the desired album page and add `/last_image` to the url.
+
+## The slideshow page
+The slideshow page shows a slideshow (in fullscreen) of the images in an album and can be accessed at:
+```
+/album/<your_album_name>/slideshow
+```
+The slideshow is continously updated as new images are added to the album.
+
+# The last image qr page
+The last image qr page is an extension to the qr page. The page looks just like the qr code page, but when a new image is captured to the album, the newly captured image is displayed in fullscreen for 20 seconds.
+
+To access the page, go to:
+```
+/album/<your_album_name>/last_image_qr
+```
+
+# The slideshow last image page
+The slideshow last image page shows a slideshow, but when a new image is captured to the album, the newly captured image is displayed for 20 seconds. The page can be found at:
+```
+/album/<your_album_name>/slideshow_last_image
+```
 
 # Design
 The design of the frontend is done using [Material UI](https://material-ui.com/), and the main layout is heavily inspired by (stolen from) the [album example](https://material-ui.com/getting-started/templates/album/) at [the Material UI template page](https://material-ui.com/getting-started/templates/).
 
-# Useful links for further development
-- https://flask.palletsprojects.com/en/1.1.x/quickstart/
-- https://flask.palletsprojects.com/en/1.1.x/tutorial/#tutorial
+# Current state of the codebase
+As of now, the backend is probably the most solid part of the codebase. The frontend is a bit messy and needs refactoring and testing. In addition, tests should be added for some parts of the command scripts in `run_commands`.
