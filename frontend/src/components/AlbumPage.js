@@ -17,21 +17,32 @@ const useStyles = makeStyles(() => ({
 function AlbumPage(props) {
   const albumName = props.match.params.albumName;
   const [albumData, setAlbumData] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [imageIndex, setImageIndex] = React.useState(1);
+  const info_gather_interval = React.useRef(null)
   const classes = useStyles();
 
   // Update the album data from server every 5 seconds
   useEffect(() => {
-    get_album_info(albumName).then((data) => {
-      setAlbumData(data);
-    });
-    const interval = setInterval(() => {
-      get_album_info(albumName).then((data) => {
-        setAlbumData(data);
-      });
-    }, 5000);
-    return () => clearInterval(interval);
+    const gather_album_data = async () => {
+      console.log("here");
+      const albumInfo = await get_album_info(albumName)
+      if (albumInfo.error) {
+        setErrorMessage(albumInfo.error)
+        clearInterval(info_gather_interval.current)
+      } else {
+        setAlbumData(albumInfo);
+      }
+    }
+
+    gather_album_data()
+    info_gather_interval.current = setInterval(gather_album_data, 5000);
+    return () => clearInterval(info_gather_interval.current);
   }, [albumName]);
+
+  if (errorMessage) {
+    return <h1>ERROR: {errorMessage}</h1>
+  }
 
   if (!albumData) {
     return (

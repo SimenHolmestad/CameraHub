@@ -29,5 +29,5 @@ class RunBackend(BaseRunConfig):
             self.static_folder_name,
             camera_module,
             qr_code_handler,
-            force_album_name=self.args.force_album
+            forced_album_name=self.args.force_album
         )
