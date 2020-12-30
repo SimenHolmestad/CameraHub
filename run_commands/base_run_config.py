@@ -83,6 +83,10 @@ class BaseRunConfig(ABC):
     def get_album_handler_instance(self):
         return FolderAlbumHandler(self.static_folder_path, "albums")
 
+    def ensure_forced_album_is_created(self, album_handler):
+        if self.args.force_album:
+            album_handler.get_or_create_album(self.args.force_album)
+
     def __find_ip_address_for_device(self):
         """Returns the IP address for this device"""
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

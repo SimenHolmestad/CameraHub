@@ -25,6 +25,7 @@ class RunApplication(BaseRunConfig):
     def __initialise_app(self):
         qr_code_handler = self.create_qr_code_handler(self.production_port)
         album_handler = self.get_album_handler_instance()
+        self.ensure_forced_album_is_created(album_handler)
         camera_module = self.get_camera_module_instance()
 
         return create_app(
