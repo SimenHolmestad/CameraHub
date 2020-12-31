@@ -71,17 +71,28 @@ class BaseRunConfig(ABC):
             self.static_folder_path,
             self.host_ip,
             port,
-            use_center_images=True
+            use_center_images=True,
+            forced_album_name=self.args.force_album
         )
 
     def get_url_for_qr_code_page(self, port):
-        return "http://" + self.host_ip + ":" + str(port) + "/qr"
+        if self.args.force_album:
+            return "http://{}:{}/album/{}/last_image_qr".format(
+                self.host_ip,
+                str(port),
+                self.args.force_album
+            )
+        return "http://{}:{}/qr".format(self.host_ip, str(port))
 
     def get_camera_module_instance(self):
         return get_instance_of_camera_module_by_name(self.args.camera_module)
 
     def get_album_handler_instance(self):
         return FolderAlbumHandler(self.static_folder_path, "albums")
+
+    def ensure_forced_album_is_created(self, album_handler):
+        if self.args.force_album:
+            album_handler.get_or_create_album(self.args.force_album)
 
     def __find_ip_address_for_device(self):
         """Returns the IP address for this device"""

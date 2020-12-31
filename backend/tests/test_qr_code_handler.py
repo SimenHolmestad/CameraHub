@@ -213,6 +213,34 @@ class QrCodeHandlerTestCase(unittest.TestCase):
         self.assertEqual(qr_codes[0].get_name(), "start_page_url")
         os.chdir("./..")
 
+    def test_qr_code_created_with_forced_album(self):
+        os.chdir(self.static_test_dir_name)
+
+        QrCodeHandler.create_qr_code_handler_with_qr_codes(
+            self.static_test_dir_name,
+            5000,
+            "192.168.0.1",
+            forced_album_name="album1"
+        )
+        qr_code_filepath = os.path.join(
+            self.static_test_dir_name,
+            "qr_codes",
+            "start_page_url.png"
+        )
+        try:
+            decoded_qr_code = decode(Image.open(qr_code_filepath))
+        except ImportError:
+            self.print_zbar_error_message()
+            return
+
+        qr_code_text = decoded_qr_code[0].data.decode("utf-8")
+        self.assertEqual(
+            qr_code_text,
+            "http://5000:192.168.0.1/album/album1"
+        )
+
+        os.chdir("./..")
+
     def test_create_qr_code_handler_when_network_details_do_exist(self):
         # We need to go down a directory so network_details.json does
         # not get overwritten in the top directory

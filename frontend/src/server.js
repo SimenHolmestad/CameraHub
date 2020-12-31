@@ -1,7 +1,7 @@
-export const get_available_albums = async () => {
+export const get_available_album_data = async () => {
   const response = await fetch('/albums/');
-  const { available_albums } = await response.json();
-  return available_albums;
+  const data = await response.json();
+  return data;
 }
 
 export const get_album_info = async album_name => {

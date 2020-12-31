@@ -11,6 +11,7 @@ class TryCameraModule(BaseRunConfig):
     created.
 
     """
+
     def __init__(self, *args, album_dir_name="test_albums", **kwargs):
         super().__init__(*args, **kwargs)
         self.album_dir_name = album_dir_name

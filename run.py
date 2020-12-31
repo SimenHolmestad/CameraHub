@@ -21,6 +21,8 @@ def parse_command_line_args():
                         help="The name of the camera module to use. Defaults to \"dummy\"",
                         choices=camera_module_name_options,
                         default=camera_module_name_options[0])
+    parser.add_argument("-f", "--force_album",
+                        help="If this is set, the application is limited to the specified album when running")
     return parser.parse_args()
 
 

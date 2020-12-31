@@ -24,6 +24,18 @@ class AlbumApiTestCase(unittest.TestCase):
         app = create_app(self.album_handler, self.static_dir_name, camera_module, qr_code_handler)
         self.test_client = app.test_client()
 
+    def create_app_and_client_with_forced_album(self, forced_album_name):
+        self.album_handler = FolderAlbumHandler(self.static_dir_name, "albums")
+        qr_code_handler = QrCodeHandler(self.static_dir_name)
+        app = create_app(
+            self.album_handler,
+            self.static_dir_name,
+            self.camera_module,
+            qr_code_handler,
+            forced_album_name=forced_album_name
+        )
+        self.test_client = app.test_client()
+
     def tearDown(self):
         self.static_dir.cleanup()
 
@@ -49,6 +61,36 @@ class AlbumApiTestCase(unittest.TestCase):
 
         expected_response = {'available_albums': ['album1', 'album2']}
         self.assertEqual(response.json, expected_response)
+
+    def test_get_available_albums_when_forced_album_is_set(self):
+        self.create_temp_album("album2")
+        self.create_temp_album("album1")
+
+        self.create_app_and_client_with_forced_album("album2")
+
+        json_response = self.test_client.get('/albums/', content_type='application/json').json
+
+        expected_response = {"forced_album": "album2"}
+        self.assertEqual(json_response, expected_response)
+
+    def test_create_album_when_forced_album_is_set(self):
+        self.create_temp_album("album2")
+
+        self.create_app_and_client_with_forced_album("album2")
+
+        PARAMS = {
+            "album_name": "album1",
+            "description": "A very nice album indeed"
+        }
+        json_response = self.test_client.post(
+            '/albums/',
+            data=json.dumps(PARAMS),
+            content_type='application/json',
+            follow_redirects=True
+        ).json
+
+        expected_response = {'error': 'Illegal operation. The only accessible album is album2.'}
+        self.assertEqual(json_response, expected_response)
 
     def test_response_from_creating_album(self):
         PARAMS = {
@@ -115,6 +157,24 @@ class AlbumApiTestCase(unittest.TestCase):
             "error": "No album with the name \"album1\" exists"
         })
 
+    def test_get_info_for_forced_album(self):
+        self.create_temp_album("album1")
+        self.create_app_and_client_with_forced_album("album1")
+        json_response = self.test_client.get('/albums/album1', content_type='application/json').json
+        self.assertEqual(json_response, {
+            'album_name': 'album1',
+            'description': '',
+            'image_urls': [],
+            'thumbnail_urls': []
+        })
+
+    def test_get_info_for_album_other_than_forced_album(self):
+        self.create_temp_album("album1")
+        self.create_temp_album("album2")
+        self.create_app_and_client_with_forced_album("album2")
+        json_response = self.test_client.get('/albums/album1', content_type='application/json').json
+        self.assertEqual(json_response, {"error": "Illegal operation. The only accessible album is album2."})
+
     def test_get_info_for_album_without_description(self):
         self.create_temp_album("album1")
         json_response = self.test_client.get('/albums/album1', content_type='application/json').json
@@ -153,6 +213,18 @@ class AlbumApiTestCase(unittest.TestCase):
                 '/{}/albums/album1/thumbnails/image0001.jpg'.format(self.static_dir_name)
             ]
         })
+
+    def test_capture_image_to_album_which_is_not_forced(self):
+        self.create_temp_album("album1")
+        self.create_temp_album("album2")
+        self.create_app_and_client_with_forced_album("album2")
+
+        json_response = self.test_client.post(
+            "/albums/album1",
+            content_type='application/json',
+            follow_redirects=True
+        ).json
+        self.assertEqual(json_response, {"error": "Illegal operation. The only accessible album is album2."})
 
     def test_successful_image_capture_response(self):
         self.create_temp_album("album1")
@@ -200,6 +272,14 @@ class AlbumApiTestCase(unittest.TestCase):
         self.create_temp_album("album1")
         json_response = self.test_client.get("/albums/album1/last_image").json
         self.assertEqual(json_response, {'error': 'album is empty'})
+
+    def test_get_last_image_for_not_forced_album(self):
+        self.create_temp_album("album1")
+        self.create_temp_album("album2")
+        self.create_app_and_client_with_forced_album("album2")
+
+        json_response = self.test_client.get("/albums/album1/last_image").json
+        self.assertEqual(json_response, {"error": "Illegal operation. The only accessible album is album2."})
 
     def test_get_last_image_for_album_after_adding_image(self):
         self.create_temp_album("album1")
