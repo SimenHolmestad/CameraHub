@@ -130,7 +130,7 @@ function AlbumOverview({ albumData, setAlbumData, setImageIndex }) {
     captureButton = (
       <Button onClick={e => handleClick(e)} variant="contained" color="primary">
         <CameraIcon className={classes.icon} />
-        Capture new image to album
+        Capture new image
       </Button>
     )
   } else {
