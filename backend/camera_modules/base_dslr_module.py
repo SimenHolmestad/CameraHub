@@ -36,13 +36,14 @@ class BaseDSLRModule(BaseCameraModule, ABC):
         Should raise IOError if something goes wrong with capture.
 
         It should not be necessary to use this function directly. Use
-        the try_capture_image instead
+        the try_capture_image instead (from BaseCameraModule)
         """
         pass
 
     def capture_image(self, image_path, raw_image_path=None):
         """Captures an image and saves it in "image_path"."""
         start_time = time.time()
+        self.kill_gphoto2_process()
         camera = gp.Camera()
         camera.init()
         print("Capturing image...")
