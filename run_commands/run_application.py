@@ -11,7 +11,7 @@ class RunApplication(BaseRunConfig):
             self.build_frontend()
 
         qr_code_url = self.get_url_for_qr_code_page(self.production_port)
-        print("Url for qr codes (when frontend is running):", qr_code_url)
+        print("Url for qr codes:", qr_code_url)
 
         app = self.__initialise_app()
 

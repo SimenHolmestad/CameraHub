@@ -5,6 +5,7 @@ from .base_run_config import BaseRunConfig
 
 class Deploy(BaseRunConfig):
     """Deploy the application to Systemd."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -31,6 +32,7 @@ class Deploy(BaseRunConfig):
         self.start_or_restart_systemd_process()
         print("System started")
         print("To get system status, run \"sudo systemctl status camerahub\"")
+        print("To get last log lines, run \"journalctl --unit=camerahub -n 100 --no-pager\"")
 
     def get_systemd_file_path(self):
         return os.path.join(
@@ -46,7 +48,6 @@ class Deploy(BaseRunConfig):
         # Restart in this case should start the system if it is not
         # already started
         subprocess.run("sudo systemctl restart camerahub", shell=True)
-
 
     def create_systemd_config_file_content(self, application_command):
         username = os.environ["SUDO_USER"]

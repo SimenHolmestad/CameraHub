@@ -13,7 +13,7 @@ class BaseDSLRModule(BaseCameraModule, ABC):
     def __init__(self, **kwargs):
         super().__init__(".jpg", **kwargs)
         camera = gp.Camera()
-        print("Please connect and switch on your DSLR Camera")
+        print("Please connect and switch on your DSLR Camera", flush=True)
         while True:
             try:
                 self.kill_gphoto2_process()

@@ -28,3 +28,4 @@ class UpdateAndRedeploy(Deploy):
         self.start_or_restart_systemd_process()
         print("System started")
         print("To get system status, run \"sudo systemctl status camerahub\"")
+        print("To get last log lines, run \"journalctl --unit=camerahub -n 100 --no-pager\"")
