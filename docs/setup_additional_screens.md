@@ -3,7 +3,7 @@
 # Setup additional screens/monitors
 CameraHub provides some "hidden pages" which are not accessible from the user interface. These pages are meant to be shown on a monitor or projector close to the camera. You as the Photoboth operator can choose which pages to be shown to the user.
 
-**Note:** The urls shown in this documents are all meant to be placed behind the base-url which CameraHub is running on. E.g. if CameraHub is running on the url `10.0.0.13:5000`, the qr code url is found at:
+**Note:** The urls shown in this documents are all meant to be placed behind the base-url which CameraHub is running on. E.g. if CameraHub is running on the url `10.0.0.13:5000`, the qr code page is found at:
 ```
 http://10.0.0.13:5000/qr
 ```

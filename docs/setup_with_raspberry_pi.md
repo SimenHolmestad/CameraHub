@@ -9,19 +9,19 @@ The recommended way of setting up CameraHub on the RPI is provided below, but so
 To install an operating system on the Raspberry PI, do the following:
 1. Download the OS ([Raspberry Pi OS with desktop](https://www.raspberrypi.org/software/operating-systems/) is recommended)
 2. Write the OS to the Micro SD card by using [balena etcher](https://www.balena.io/etcher/)
-3. (Optional) Write WiFi-information to the RPI (see [this guide](https://www.raspberrypi.org/documentation/remote-access/README.md))
+3. (Optional) Write WiFi-information to the SD card (see [this guide](https://www.raspberrypi.org/documentation/remote-access/README.md))
 4. Put the Micro SD card into the RPI
 
 Writing WiFi-information to the Raspberry PI is only needed if you want connect to the PI using WiFi (not cable) and you do not want to connect the Raspberry PI to a keyboard and mouse.
 
-## Connect to the Raspberry PI
+## Connecting to the Raspberry PI
 It is possible to run CameraHub directly on the Raspberry PI with a keyboard and mouse connected to it. I find it however better to connect to it using SSH.
 
 To connect to the PI using SSH, you first have to make sure the PI is connected to your network (if on wifi, you can follow [this guide](https://www.raspberrypi.org/documentation/configuration/wireless/README.md)). When the PI is connected to the network, check out [this guide](https://www.raspberrypi.org/documentation/remote-access/README.md) on accessing it using SSH.
 
 **NOTE:** The Raspberry PI needs to be connected to the same network as the units which are going to access the CameraHub application.
 
-## Install project dependencies
+## Installing project dependencies
 In the RPI terminal, make sure that node and npm are installed by doing:
 ```
 sudo apt-get install nodejs npm
@@ -70,15 +70,20 @@ python3 run.py run_application -c rpicam --force_album Halloween
 As we want CameraHub to run at all times, we need to deploy it somehow. One way to deploy the application is to use systemd, as described in [this blog post](https://blog.miguelgrinberg.com/post/running-a-flask-application-as-a-service-with-systemd). To make depoying to systemd simpler, a deploy script is provided to do this job. The deploy script can be run with:
 
 ```
-python3 run.py deploy <args>
+sudo python3 run.py deploy <args>
 ```
 
 where `<args>` are the same as when running the application. If you for example want to deploy the application the same way as above, with the RPI Camera Module and one album named "Halloween", the command becomes:
 ```
-python3 run.py deploy -c rpicam --force_album Halloween
+sudo python3 run.py deploy -c rpicam --force_album Halloween
 ```
 
 To redeploy with other arguments, just run the deploy command again.
+
+If you want to get the status of the system after deploying, you can run the command:
+```
+sudo systemctl status camerahub
+```
 
 # Next steps
 - [Setting up additional screens/monitors](setup_additional_screens.md)

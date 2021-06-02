@@ -1,8 +1,9 @@
 # CameraHub
+CameraHub is an application for setting up a photobooth powered by a Raspberry PI.
 
 ![CameraHub demo gif](docs/images/demo.gif)
 
-CameraHub is an application for setting up a photobooth powered by a Raspberry PI. To set up CameraHub, you need the following:
+To set up CameraHub, you need the following:
 
 - Raspberry PI
 - A camera (Raspberry PI Camera Module or DSLR)
@@ -12,7 +13,7 @@ CameraHub is an application for setting up a photobooth powered by a Raspberry P
 
 If used with a DSLR Camera, CameraHub can provide the captured images in full DSLR image quality and even store the raw images directly on the Raspberry PI. In addition, the DSLR camera can be connected to multiple flashes, allowing for studio quality photobooth setups.
 
-CameraHub provides the following features:
+## Features
 - Automatic creation of QR code to access application
 - Mobile-friendly interface for navigating images and capture new ones
 - Support for both Raspberry PI Camera Module and DSLR cameras

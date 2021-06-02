@@ -11,7 +11,7 @@ This is some of the reason that the backend is developed in Flask. Developing Ca
 # CameraHub architecture
 The CameraHub architecture is more or less like this:
 
-![CameraHub Architecture](images/architecture_chart.svg)
+![CameraHub Architecture](images/architecture_chart.png)
 
 The different components in the diagram above will be explained further throughout this document.
 
@@ -58,7 +58,7 @@ The QR Code API provides information links and information to the QR codes provi
 
 ## GET `/qr_codes` -> Get qr code information
 Returns the QR Code information on the following form:
-```json
+```
 "qr_codes": [
   {
     "name": "<name_of_qr_code>",
